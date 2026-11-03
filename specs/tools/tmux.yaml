@@ -1,4 +1,4 @@
-version: '20261013'
+version: '20261103'
 description: Terminal multiplexer
 flags:
   -L: {value: any, description: "Socket name"}
@@ -32,7 +32,7 @@ commands:
     flags:
       -d: {description: "Detach all other clients attached to the session"}
       -r: {description: "Attach the session in read-only mode"}
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
       -c: {value: dir, description: "Working directory"}
       -e: {value: any, description: "Set environment variable"}
       -f: {value: any, description: "Client flags"}
@@ -40,7 +40,7 @@ commands:
   kill-session:
     description: Kill a session
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session", show: always}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session", show: always}
       -a: {description: "Kill all sessions except the current one"}
       -C: {description: "Clear the alert flags for the target session"}
   list-sessions:
@@ -52,7 +52,7 @@ commands:
   switch-client:
     description: Switch the attached client to another session
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
       -l: {description: "Switch to the last session"}
       -n: {description: "Switch to the next session"}
       -p: {description: "Switch to the previous session"}
@@ -62,11 +62,11 @@ commands:
   rename-session:
     description: Rename a session
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
   has-session:
     description: Check if a session exists
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
   new-window:
     description: Create a new window
     aliases: [neww]
@@ -74,7 +74,7 @@ commands:
       -d: {description: "Do not set the new window as the current window"}
       -n: {value: any, description: "Window name"}
       -c: {value: dir, description: "Start directory"}
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target window"}
       -a: {description: "Insert the new window at the next index up"}
       -b: {description: "Insert the new window at the previous index"}
       -e: {value: any, description: "Set environment variable"}
@@ -85,38 +85,38 @@ commands:
     description: Kill a window
     aliases: [killw]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
       -a: {description: "Kill all windows except the current one"}
   list-windows:
     description: List windows
     aliases: [lsw]
     flags:
       -a: {description: "List windows on all sessions"}
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
       -F: {value: any, description: "Format string"}
       -f: {value: any, description: "Filter windows"}
   next-window:
     description: Move to the next window
     aliases: [next]
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
       -a: {description: "Move all clients attached to the current window"}
   prev-window:
     description: Move to the previous window
     aliases: [prev]
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
       -a: {description: "Move all clients attached to the current window"}
   rename-window:
     description: Rename a window
     aliases: [renamew]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
   select-window:
     description: Select a window
     aliases: [selectw]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
       -l: {description: "Select the previously selected window"}
       -n: {description: "Select the next window"}
       -p: {description: "Select the previous window"}
@@ -183,7 +183,7 @@ commands:
     description: Send keys to a window
     aliases: [send]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target pane"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target pane"}
       -l: {description: "Disable key name lookup and send keys literally"}
       -H: {description: "Each argument is a hexadecimal number for a UTF-8 character to send"}
       -M: {description: "Pass through a mouse event"}
@@ -209,7 +209,7 @@ commands:
     aliases: [pasteb]
     flags:
       -t: {value: any, description: "Target pane"}
-      -b: {value: {exec: "tmux list-buffers -F '#{buffer_name}\\t#{buffer_sample}' 2>/dev/null"}, description: "Buffer index or name"}
+      -b: {value: {exec: "tmux list-buffers -F '#{buffer_name}|#{buffer_sample}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Buffer index or name"}
       -d: {description: "Delete the buffer after pasting"}
       -p: {description: "Use the most recently copied buffer from other programs"}
       -r: {description: "Do not replace newlines with carriage returns"}
@@ -272,7 +272,7 @@ commands:
     description: Set a session or server option
     aliases: [set]
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session or window"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session or window"}
       -g: {description: "Set a global option"}
       -s: {description: "Set a server option"}
       -w: {description: "Set a window option"}
@@ -287,7 +287,7 @@ commands:
     description: Show session or server options
     aliases: [show]
     flags:
-      -t: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session or window"}
+      -t: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session or window"}
       -g: {description: "Show global options"}
       -s: {description: "Show server options"}
       -w: {description: "Show window options"}
@@ -300,7 +300,7 @@ commands:
     description: Set a window option
     aliases: [setw]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
       -g: {description: "Set a global option"}
       -a: {description: "Append to the option value"}
       -o: {description: "Prevent setting a option that is not already set"}
@@ -310,7 +310,7 @@ commands:
     description: Show window options
     aliases: [showw]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
       -g: {description: "Show global options"}
       -v: {description: "Show only the option value, not the name"}
   set-hook:
@@ -414,7 +414,7 @@ commands:
       -a: {description: "Detach all clients except the named client"}
       -P: {description: "Send SIGHUP to the parent process of the client"}
       -E: {value: any, description: "Run shell-command in place of the shell"}
-      -s: {value: {exec: "tmux list-sessions -F '#{session_name}\\t#{session_windows} windows' 2>/dev/null"}, description: "Target session"}
+      -s: {value: {exec: "tmux list-sessions -F '#{session_name}|#{session_windows}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2 \" windows\"}'"}, description: "Target session"}
   pipe-pane:
     description: Pipe output from a pane to a shell command
     aliases: [pipep]
@@ -484,7 +484,7 @@ commands:
     description: Rotate the positions of the panes within a window
     aliases: [rotatew]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
       -D: {description: "Rotate downward (the default direction)"}
       -U: {description: "Rotate upward"}
       -Z: {description: "Keep the window zoomed if it is zoomed"}
@@ -493,7 +493,7 @@ commands:
     aliases: [movew]
     flags:
       -t: {value: any, description: "Target window"}
-      -s: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Source window"}
+      -s: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Source window"}
       -a: {description: "Move to the next index up from the target"}
       -b: {description: "Move to the next index down from the target"}
       -d: {description: "Do not make the new window the current window"}
@@ -503,15 +503,15 @@ commands:
     description: Swap two windows
     aliases: [swapw]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
-      -s: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Source window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
+      -s: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Source window"}
       -d: {description: "Do not make the new window the current window"}
   link-window:
     description: Link a window to another position
     aliases: [linkw]
     flags:
       -t: {value: any, description: "Target window"}
-      -s: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Source window"}
+      -s: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Source window"}
       -a: {description: "Move to the next index up from the target"}
       -b: {description: "Move to the next index down from the target"}
       -d: {description: "Do not make the new window the current window"}
@@ -520,7 +520,7 @@ commands:
     description: Unlink a window
     aliases: [unlinkw]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
       -k: {description: "Kill the window if it would be removed from all sessions"}
   respawn-pane:
     description: Reactivate a pane in which the command has exited
@@ -534,7 +534,7 @@ commands:
     description: Reactivate a window in which the command has exited
     aliases: [respawnw]
     flags:
-      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}	#{window_name}' 2>/dev/null"}, description: "Target window"}
+      -t: {value: {exec: "tmux list-windows -a -F '#{session_name}:#{window_index}|#{window_name}' 2>/dev/null | awk -F'|' '{print $1 \"\\t\" $2}'"}, description: "Target window"}
       -c: {value: dir, description: "Start directory"}
       -e: {value: any, description: "Set environment variable"}
       -k: {description: "Kill the window if still active"}
