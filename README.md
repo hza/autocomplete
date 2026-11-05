@@ -3,13 +3,13 @@
 **Ready-made command snippets on TAB, plus fast tab completion, for the stock macOS bash 3.2
 (`/bin/bash`). Written in C.**
 
-Can't remember the curl flags for posting JSON, or how to make a tarball? Type the command,
-press TAB, and pick a snippet. `@key<TAB>` inserts the whole command line, ready to edit.
+Can't remember the curl flags for posting JSON, or how to make a tarball? Type the command
+and `@<TAB>`, then pick a snippet. `@key<TAB>` inserts the whole command line, ready to edit.
 About 135 commands have snippets, including curl, tar, find, ffmpeg, openssl, docker,
 kubectl and macOS tools such as `defaults`, `sips` and `mdfind`.
 
 ```console
-$ tar <TAB>
+$ tar @<TAB>
 📌 @c  -- tar -czf backup.tar.gz project/              📚 create a gzip archive of a folder
 📌 @x  -- tar -xzf backup.tar.gz                       📚 extract a gzip archive here
 📌 @t  -- tar -tzf backup.tar.gz                       📚 list the contents without extracting
@@ -38,8 +38,7 @@ $ make install
 It is a lightweight alternative to bash-completion that completes docker, git, kubectl, make,
 mvn, npm and more. You don't need Homebrew bash, the `bash-completion` package or zsh, and
 there are no shell scripts. It shines on parameter monsters like curl and wget. Hundreds of
-flags are grouped to fit your screen, and TAB on an empty argument shows ready-made command
-snippets.
+flags are grouped to fit your screen.
 
 ## Installation
 
@@ -58,23 +57,11 @@ building from source, install options and uninstalling: see [Installation option
 ## Snippets: ready-made commands on TAB
 
 Most completion tools help you spell a flag you already know. Snippets help when you don't
-remember which flags you need. Press TAB right after a command and you get a list of
-complete, working commands, each with a one-letter key and a short explanation:
-
-```console
-$ curl <TAB>
-📌 @d  -- curl -d 'name=ann&age=30' https://httpbin.org/post   📚 POST form fields
-📌 @j  -- curl --json '{"id":1}' https://httpbin.org/post      📚 POST JSON
-📌 @l  -- curl -L -o page.html https://example.org             📚 follow redirects, save to file
-🔥 @x  -- curl -X DELETE https://httpbin.org/delete            📚 any other method: PUT, PATCH, DELETE
-...
-$ curl @x<TAB>
-$ curl -X DELETE https://httpbin.org/delete
-```
-
-Type `@` plus the key and press TAB, and the whole command is inserted for you to edit.
-📌 marks the most used ones, which are listed first. When TAB already completes something
-else there (files for `tar`, hosts for `ssh`), type `@<TAB>` to see the snippets.
+remember which flags you need: type `@` right after a command and press TAB (see the `tar`
+example above). Each snippet is a complete, working command with a one-letter key and a
+short explanation; `@key<TAB>` inserts it for you to edit. 📌 marks the most used ones,
+which are listed first. A plain TAB never shows snippets, so it keeps completing files,
+hosts and flags as usual.
 
 Bundled snippets cover the commands whose flags are hard to remember:
 
@@ -145,7 +132,7 @@ prompt you're already typing on.
   - open: app names (`-a`) and bundle ids (`-b`); launchctl: services and LaunchAgent plists
 - Descriptions next to subcommands and flags when several match
   (`git stash <TAB>` → `pop  -- Apply a stash and remove it`).
-- [Snippets](#snippets-ready-made-commands-on-tab): `curl <TAB>` lists ready-made commands,
+- [Snippets](#snippets-ready-made-commands-on-tab): `curl @<TAB>` lists ready-made commands,
   `curl @x<TAB>` inserts one.
 - Handles `--flag=value`, `image:tag`, quoted words and file names with spaces.
 - Add a command by writing a small YAML file, with no rebuild

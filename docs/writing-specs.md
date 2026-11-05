@@ -104,7 +104,7 @@ A value can be:
 | &nbsp;&nbsp;`filter: false` | show every line the command prints, even ones not starting with the typed word (the command filters itself, e.g. duti turns `md` into `net.daringfireball.markdown`) |
 | &nbsp;&nbsp;`snippets: true` | the command prints `key<TAB>value<TAB>description` lines (an optional 4th column is the `mark`: an icon name or an emoji), listed like `snippets` (`🔥 @j  -- json   📚 …`); typing `@j` and TAB inserts that value single-quoted (good for templates such as docker `--format`) |
 | `"@subcommands"` | the parent command's subcommands (e.g. `git help <TAB>`) |
-| `"@command"` | a command from `$PATH`; the words after it are completed with that command's spec (e.g. `sudo`, `xargs`). Words with `=` before the command are skipped (`env FOO=1 git …`), and so is `!` (`if ! git …`). Use it as `args`. If the spec has `snippets`, an empty word shows them instead of every executable (`if <TAB>`) |
+| `"@command"` | a command from `$PATH`; the words after it are completed with that command's spec (e.g. `sudo`, `xargs`). Words with `=` before the command are skipped (`env FOO=1 git …`), and so is `!` (`if ! git …`). Use it as `args`. |
 | `"@make-targets"` | targets of the Makefile, with descriptions (see below) |
 | `"@make-variables"` | `NAME=` for each upper-case variable (`A-Z`, `0-9`, `_`) the Makefile assigns, for overrides like `make CC=clang` |
 | a list `[a, b]` | everything from each item, combined |

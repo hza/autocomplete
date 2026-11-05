@@ -417,8 +417,7 @@ static void add_snippets(void) {
     char name[32], desc[1024];
     if (!g_snippets || g_snippets->type != Y_ARR) return;
     want = g_cur[0] == '@' && g_cur[1]; /* "@key": exact key -> substitute, else list keys with that prefix */
-    if (*g_cur && strcmp(g_cur, "@") && !want) return;
-    if (!*g_cur && g_ncands) return; /* other candidates (lsof files): snippets only on "@" */
+    if (strcmp(g_cur, "@") && !want) return; /* snippets only on "@…" */
     nl = strlen(g_snippets_name);
     g_kind = g_ncands ? g_cands[0].kind : NULL; /* no [kind] tags */
     g_verbatim = 1;

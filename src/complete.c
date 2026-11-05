@@ -651,12 +651,11 @@ int do_complete(const char *line, const char *wbreaks) {
         if (p) v = p;
     }
     /* "if <TAB>": the snippets, not every $PATH executable; "if g<TAB>" completes commands */
-    if (g_snippets && !*g_cur && is_str(v, "@command")) return 0;
     if (g_snippets && *g_cur == '@') return 0; /* "wget @p": add_snippets */
     /* "@subcommands" on a leaf (docker help) lists the parent's commands */
     complete_value(v, is_str(v, "@subcommands") && parent ? parent : c);
     /* "docker compose down <TAB>": nothing else to offer, so the command's
      * own flags (root ones only after "-") */
-    if (!*g_cur && !ncands() && !(g_snippets && g_snippets->child) && c != root) list_flags(c, root, w, n, 0);
+    if (!*g_cur && !ncands() && c != root) list_flags(c, root, w, n, 0);
     return 0;
 }
