@@ -27,10 +27,10 @@ $ tar -xzf backup.tar.gz
 ```
 
 Everything else completes too: subcommands, flags with descriptions, and live values such as
-docker networks, git branches and make targets. macOS still ships bash 3.2 from 2007, and
-most modern completion tools have dropped support for it. This project was built
-specifically for that bash. All logic runs in a single compiled C binary, so pressing TAB
-doesn't run any shell code. Completion is instant and new terminals open as fast as before.
+docker networks, git branches and make targets.
+
+All logic runs in a single compiled C binary, so pressing TAB doesn't run any shell code.
+Completion is instant and new terminals open as fast as before.
 
 ```console
 $ docker run --network <TAB>
@@ -186,14 +186,15 @@ No. Homebrew has dropped support for Intel (x86_64) Macs, so I don't support Hom
 
 ### Why another bash completion tool?
 
-If you use bash on a Mac, you've probably found that completion tools don't support it:
+macOS still ships bash 3.2 from 2007, and most modern completion tools have dropped support
+for it:
 
 - **bash-completion 2.x** requires bash 4.2 or newer.
 - **bash-completion 1.3**, the last version that runs on bash 3.2, is unmaintained. It
   loads every completion script at shell startup, which makes each new terminal slow to open.
 - The usual workaround is to `brew install bash` and change your login shell.
 
-autocomplete works with the bash already on your Mac:
+autocomplete was built specifically for that bash:
 
 - **Built for macOS bash 3.2.** Tested against Apple's `/bin/bash` and Apple clang.
 - **Fast because it's all C.** Bash registers the binary with `complete -C`, so every TAB
