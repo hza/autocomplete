@@ -5,8 +5,14 @@ bash 3.2 (`/bin/bash`). Written in C.**
 
 Can't remember the curl flags for posting JSON, or how to make a tarball? Type the command
 and `@<TAB>`, then pick a snippet. `@key<TAB>` inserts the whole command line, ready to edit.
-About 135 commands have snippets, including curl, tar, find, ffmpeg, openssl, docker,
-kubectl and macOS tools such as `defaults`, `sips` and `mdfind`.
+About 135 commands have snippets, including curl, tar, find, grep, docker, kubectl, ssh,
+rsync, ffmpeg, openssl and macOS tools such as `defaults`, `sips` and `mdfind`.
+
+Tab completion covers the commands you type every day: `git` (branches, remotes, your
+aliases), `docker` (containers, images, networks), `make` (targets from your Makefile),
+`npm`/`yarn`/`pnpm` (package.json scripts), `kubectl`, `brew`, `ssh` (hosts), `mvn`, `aws`
+and more. With `autocomplete bash --man`, commands without a bundled spec complete their
+flags from their man pages.
 
 ```console
 $ tar @<TAB>
@@ -47,7 +53,11 @@ adds `eval "$(autocomplete bash)"` to `~/.bashrc`:
 
 ```sh
 curl -fsSL https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
-# or
+```
+
+or with `wget`:
+
+```sh
 wget -qO- https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
 ```
 
