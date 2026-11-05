@@ -1,6 +1,5 @@
 # Push a tag v* → build darwin-arm64, darwin-x86_64, linux-x86_64, linux-arm64 tarballs,
-# publish a GitHub Release (+ install.sh, SHA256SUMS) and bump the Homebrew tap.
-# Secret HOMEBREW_TAP_TOKEN: fine-grained PAT with contents:write on hza/homebrew-tap.
+# publish a GitHub Release (+ install.sh, SHA256SUMS).
 name: release
 
 on:
@@ -67,72 +66,3 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --generate-notes
 
-  homebrew:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: dist
-          merge-multiple: true
-      - uses: actions/checkout@v4
-        with:
-          repository: hza/homebrew-tap
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          path: tap
-      - run: |
-          v=${GITHUB_REF_NAME#v}
-          base=https://github.com/hza/bash-autocomplete/releases/download/$GITHUB_REF_NAME
-          sha() { sha256sum "dist/autocomplete-$1.tar.gz" | cut -d' ' -f1; }
-          mkdir -p tap/Formula
-          cat > tap/Formula/autocomplete.rb <<EOF
-          class Autocomplete < Formula
-            desc "Fast tab completion for bash 3.2+, written in C"
-            homepage "https://github.com/hza/bash-autocomplete"
-            version "$v"
-            license "MIT"
-
-            on_macos do
-              on_arm do
-                url "$base/autocomplete-darwin-arm64.tar.gz"
-                sha256 "$(sha darwin-arm64)"
-              end
-              on_intel do
-                url "$base/autocomplete-darwin-x86_64.tar.gz"
-                sha256 "$(sha darwin-x86_64)"
-              end
-            end
-            on_linux do
-              on_intel do
-                url "$base/autocomplete-linux-x86_64.tar.gz"
-                sha256 "$(sha linux-x86_64)"
-              end
-              on_arm do
-                url "$base/autocomplete-linux-arm64.tar.gz"
-                sha256 "$(sha linux-arm64)"
-              end
-            end
-
-            def install
-              bin.install "bin/autocomplete"
-              (share/"autocomplete").install Dir["share/autocomplete/*"]
-            end
-
-            def caveats
-              <<~EOS
-                Add this line to ~/.bashrc (macOS Terminal: make sure ~/.bash_profile loads ~/.bashrc):
-                  eval "\$(autocomplete bash)"
-              EOS
-            end
-
-            test do
-              assert_match "git", shell_output("#{bin}/autocomplete list")
-            end
-          end
-          EOF
-          cat tap/Formula/autocomplete.rb
-          cd tap
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
-          git add Formula/autocomplete.rb
-          git commit -m "autocomplete $v" && git push

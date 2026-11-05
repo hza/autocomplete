@@ -1,7 +1,7 @@
-# autocomplete: command snippets and tab completion for macOS bash 3.2
+# autocomplete: tab completion and command snippets for macOS bash 3.2
 
-**Ready-made command snippets on TAB, plus fast tab completion, for the stock macOS bash 3.2
-(`/bin/bash`). Written in C.**
+**Fast tab completion, plus ready-made command snippets on `@<TAB>`, for the stock macOS
+bash 3.2 (`/bin/bash`). Written in C.**
 
 Can't remember the curl flags for posting JSON, or how to make a tarball? Type the command
 and `@<TAB>`, then pick a snippet. `@key<TAB>` inserts the whole command line, ready to edit.
@@ -51,7 +51,7 @@ curl -fsSL https://github.com/hza/bash-autocomplete/releases/latest/download/ins
 wget -qO- https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
 ```
 
-Open a new terminal and press TAB after `docker`, `git` or `make`. Homebrew, manual download,
+Open a new terminal and press TAB after `docker`, `git` or `make`. Manual download,
 building from source, install options and uninstalling: see [Installation options](docs/installation.md).
 
 ## Snippets: ready-made commands on TAB
@@ -146,7 +146,6 @@ prompt you're already typing on.
 
 ## Requirements
 
-- To build from source: the Xcode Command Line Tools (`xcode-select --install`) on macOS, or gcc/clang and make on Linux.
 - bash 3.2 (the macOS `/bin/bash`) or any newer bash.
 
 ## Commands
@@ -171,6 +170,11 @@ prompt you're already typing on.
 
 ## FAQ
 
+### Is there a Homebrew package?
+
+No. Homebrew has dropped support for Intel (x86_64) Macs, so I don't support Homebrew. Use the curl/wget install script
+([Installation](#installation)) or one of the [other options](docs/installation.md).
+
 ### Why another bash completion tool?
 
 If you use bash on a Mac, you've probably found that completion tools don't support it:
@@ -191,7 +195,7 @@ autocomplete works with the bash already on your Mac:
 
 ### How do I get tab completion for git and docker in macOS bash?
 
-Install autocomplete (`make install`) and open a new terminal. You don't need Homebrew
+Install autocomplete ([Installation](#installation)) and open a new terminal. You don't need Homebrew
 bash, `bash-completion` or zsh.
 
 ### Do I need to upgrade bash or switch to zsh?
@@ -211,7 +215,7 @@ values. See [Adding your own commands](docs/adding-commands.md).
 
 ## Documentation
 
-- [Installation options](docs/installation.md): install script options, Homebrew, manual
+- [Installation options](docs/installation.md): install script options, manual
   download, building from source, uninstalling
 - [Adding your own commands](docs/adding-commands.md): a quick start for new commands
 - [Writing specs](docs/writing-specs.md): spec format, value types, supported YAML,

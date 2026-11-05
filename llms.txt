@@ -12,7 +12,7 @@ Key facts:
 
 ## Docs
 
-- [Installation options](https://github.com/hza/bash-autocomplete/blob/main/docs/installation.md): install script options, Homebrew, manual download, building from source, uninstalling
+- [Installation options](https://github.com/hza/bash-autocomplete/blob/main/docs/installation.md): install script options, manual download, building from source, uninstalling
 - [README](https://github.com/hza/bash-autocomplete/blob/main/README.md): overview, features, install, commands, FAQ
 - [Adding your own commands](https://github.com/hza/bash-autocomplete/blob/main/docs/adding-commands.md): quick start for writing a spec
 - [Writing specs](https://github.com/hza/bash-autocomplete/blob/main/docs/writing-specs.md): full spec format, value types, supported YAML, lookup order

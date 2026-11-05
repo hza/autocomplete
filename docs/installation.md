@@ -12,15 +12,6 @@ Set `PREFIX=/usr/local`, `PROFILE=~/.bash_profile` or `VERSION=v0.1.0` for `sh` 
 defaults (e.g. `... | PREFIX=$HOME/bin sh`). The script verifies the download's SHA-256
 checksum. Uninstall with `... | sh -s -- --uninstall` (same `PREFIX`/`PROFILE`).
 
-## Homebrew
-
-macOS and Linux:
-
-```sh
-brew install hza/tap/autocomplete
-echo 'eval "$(autocomplete bash)"' >> ~/.bashrc
-```
-
 ## Manual download
 
 Pick the tarball for your system (`darwin-arm64`, `darwin-x86_64`,
@@ -36,6 +27,9 @@ echo 'eval "$(~/.local/bin/autocomplete bash)"' >> ~/.bashrc
 The binary finds its specs in `../share/autocomplete` next to `bin/`, so keep the two together.
 
 ## From source
+
+Requires the Xcode Command Line Tools (`xcode-select --install`) on macOS, or gcc/clang and
+make on Linux.
 
 ```sh
 git clone https://github.com/hza/bash-autocomplete.git autocomplete

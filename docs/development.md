@@ -4,6 +4,9 @@ For maintainers.
 
 ## Building from source
 
+Requires the Xcode Command Line Tools (`xcode-select --install`) on macOS, or gcc/clang and
+make on Linux.
+
 ```sh
 make            # builds ./autocomplete
 make clean
@@ -24,7 +27,6 @@ git tag v0.1.0 && git push origin v0.1.0
 
 The workflow builds `autocomplete-{darwin-arm64,darwin-x86_64,linux-x86_64,linux-arm64}.tar.gz`
 (`make dist TARGET=…`; macOS on `macos-14` with `-arch`, Linux as static musl binaries on
-native runners), creates the GitHub Release with the tarballs, `install.sh` and `SHA256SUMS`,
-and updates the Homebrew formula in `hza/homebrew-tap` (needs the repository secret
-`HOMEBREW_TAP_TOKEN`: a fine-grained token with contents write access to that repo).
+native runners) and creates the GitHub Release with the tarballs, `install.sh` and
+`SHA256SUMS`.
 Build a tarball locally with `make dist TARGET=darwin-arm64`.
