@@ -1,4 +1,4 @@
-version: '20261015'
+version: '20261105'
 description: "Build, run and manage containers"
 inherit_flags: false # global options only before the subcommand ("docker ps -D" fails)
 flags:
@@ -9,6 +9,47 @@ flags:
   --log-level: {aliases: [-l], value: {exec: "sh \"$AUTOCOMPLETE_SPEC_DIR/docker.sh\" log-level"}, description: "Set the logging level (\"debug\", \"info\", \"warn\", \"error\", \"fatal\")", show: always}
   --help: {description: "Print usage", show: always}
   --version: {aliases: [-v], description: "Print version information and quit", show: always}
+snippets:
+  - key: b
+    mark: pin
+    command: "docker run --rm -it bash:3.2"
+    description: "throwaway bash 3.2 shell (same as macOS /bin/bash)"
+  - key: w
+    mark: pin
+    command: 'docker run --rm -it -v "$PWD":/work -w /work bash:3.2'
+    description: "bash 3.2 with the current dir mounted at /work"
+  - key: a
+    command: "docker run --rm -it alpine sh"
+    description: "throwaway Alpine shell"
+  - key: e
+    mark: pin
+    command: "docker exec -it web sh"
+    description: "shell in a running container"
+  - key: p
+    mark: pin
+    command: "docker ps -a"
+    description: "all containers, stopped too"
+  - key: l
+    command: "docker logs -f --tail 100 web"
+    description: "follow a container's log"
+  - key: i
+    command: "docker images"
+    description: "local images"
+  - key: u
+    command: "docker compose up -d"
+    description: "start the compose project in the background"
+  - key: d
+    command: "docker compose down"
+    description: "stop and remove the compose project"
+  - key: s
+    command: "docker stats --no-stream"
+    description: "CPU/memory of running containers, once"
+  - key: c
+    command: "docker system df"
+    description: "disk used by images, containers, volumes"
+  - key: x
+    command: "docker system prune -f"
+    description: "remove stopped containers, unused networks, dangling images"
 commands:
   run:
     description: Create and run a new container from an image
@@ -40,6 +81,47 @@ commands:
     args:
       exec: docker images --format '{{.Repository}}:{{.Tag}}'
       tree: true
+    snippets:
+      - key: b
+        mark: pin
+        command: "docker run --rm -it bash:3.2"
+        description: "throwaway bash 3.2 shell (same as macOS /bin/bash)"
+      - key: w
+        mark: pin
+        command: 'docker run --rm -it -v "$PWD":/work -w /work bash:3.2'
+        description: "bash 3.2 with the current dir mounted at /work"
+      - key: c
+        command: "docker run --rm bash:3.2 -c 'echo $BASH_VERSION'"
+        description: "run one command in bash 3.2"
+      - key: a
+        mark: pin
+        command: "docker run --rm -it alpine sh"
+        description: "throwaway Alpine shell"
+      - key: u
+        command: "docker run --rm -it ubuntu bash"
+        description: "throwaway Ubuntu shell"
+      - key: x
+        command: "docker run --rm -it --platform linux/amd64 ubuntu bash"
+        description: "x86_64 container on Apple silicon"
+      - key: d
+        mark: pin
+        command: "docker run -d --name web -p 8080:80 nginx"
+        description: "nginx in the background on localhost:8080"
+      - key: r
+        command: "docker run -d --name db --restart unless-stopped -e POSTGRES_PASSWORD=secret -p 5432:5432 postgres"
+        description: "Postgres on localhost:5432, restarts with Docker"
+      - key: e
+        command: "docker run --rm --env-file .env alpine env"
+        description: "pass variables from .env"
+      - key: n
+        command: "docker run --rm -it --network host alpine sh"
+        description: "use the host network"
+      - key: m
+        command: "docker run --rm -it -m 512m --cpus 1 alpine sh"
+        description: "limit memory and CPUs"
+      - key: s
+        command: "docker run --rm -it --entrypoint sh nginx"
+        description: "shell instead of the image's entrypoint"
   exec:
     description: Execute a command in a running container
     flags:
@@ -52,6 +134,21 @@ commands:
       --privileged: {description: "Give extended privileges to the command"}
     args:
       exec: docker ps --format '{{.Names}}'
+    snippets:
+      - key: b
+        mark: pin
+        command: "docker exec -it web bash"
+        description: "bash in a running container"
+      - key: s
+        mark: pin
+        command: "docker exec -it web sh"
+        description: "sh when the image has no bash"
+      - key: r
+        command: "docker exec -it -u root web sh"
+        description: "shell as root"
+      - key: e
+        command: "docker exec web env"
+        description: "show the container's environment"
   ps:
     description: List containers
     flags:
