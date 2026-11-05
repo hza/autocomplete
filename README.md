@@ -142,7 +142,6 @@ prompt you're already typing on.
   (helm, gh, hugo) to their own live completion ([details](docs/generated-specs.md)).
 - Built-in completion for SSH hosts, users, PIDs, process names and signals; `~user/` paths.
 - Complete shell aliases like the command they wrap (`autocomplete alias kubectl k`).
-- Very large specs (over 100 KB) are compiled to a cache, so TAB doesn't re-parse YAML.
 
 ## Requirements
 
