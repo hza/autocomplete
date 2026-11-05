@@ -1,4 +1,4 @@
-version: '20261015'
+version: '20261105'
 description: "Lossy PNG compressor (quantizes to an 8-bit palette)"
 flags:
   --force: {aliases: [-f], description: "Overwrite existing output files"}
@@ -25,7 +25,7 @@ args: {file: "*.png"}
 snippets:
   - key: d
     mark: '1'
-    command: "pngquant --quality 65-85 --skip-if-larger --strip --ext .png --force -- images/*.png"
+    command: "pngquant --quality 65-85 --skip-if-larger --strip --ext .png --force -- *.png"
     description: "compress every PNG in a dir in place (skips ones that would grow)"
   - key: c
     mark: pin
