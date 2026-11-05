@@ -8,21 +8,23 @@
 
 # autocomplete: tab completion and command snippets for macOS bash 3.2
 
-**Fast tab completion, plus ready-made command snippets on `@<TAB>`, for the stock macOS
-bash 3.2 (`/bin/bash`). Written in C.**
+**Fast tab completion, plus ready-made command snippets on `@<TAB>`, for the bash that ships
+with macOS (`/bin/bash` 3.2). One small C binary, no shell scripts, no dependencies.**
 
-Can't remember the curl flags for posting JSON, or how to make a tarball? Type the command
-and `@<TAB>`, then pick a snippet. `@key<TAB>` inserts the whole command line, ready to edit.
-About 135 commands have snippets, including curl, tar, find, grep, docker, kubectl, ssh,
-rsync, ffmpeg, openssl and macOS tools such as `defaults`, `sips` and `mdfind`.
+It does two things:
 
-Tab completion covers the commands you type every day: `git` (branches, remotes, your
-aliases), `docker` (containers, images, networks), `make` (targets from your Makefile),
-`npm`/`yarn`/`pnpm` (package.json scripts), `kubectl`, `brew`, `ssh` (hosts), `mvn`, `aws`
-and more. With `autocomplete bash --man`, commands without a bundled spec complete their
-flags from their man pages.
+- **Tab completion** for the commands you type every day: subcommands, flags with
+  descriptions, and live values such as git branches, docker networks and make targets.
+- **Snippets**: type a command, then `@<TAB>`, and pick a complete, working command line.
+  No more looking up the curl flags for posting JSON or how to make a tarball.
 
 ```console
+$ git checkout fe<TAB>
+$ git checkout feature/login
+
+$ docker run --network <TAB>
+bridge   host   none   my_app_default
+
 $ tar @<TAB>
 📌 @c  -- tar -czf backup.tar.gz project/              📚 create a gzip archive of a folder
 📌 @x  -- tar -xzf backup.tar.gz                       📚 extract a gzip archive here
@@ -34,30 +36,13 @@ $ tar @x<TAB>
 $ tar -xzf backup.tar.gz
 ```
 
-Everything else completes too: subcommands, flags with descriptions, and live values such as
-docker networks, git branches and make targets.
-
-All logic runs in a single compiled C binary, so pressing TAB doesn't run any shell code.
-Completion is instant and new terminals open as fast as before.
-
-```console
-$ docker run --network <TAB>
-bridge   host   none   my_app_default
-$ git checkout fe<TAB>
-$ git checkout feature/login
-$ make in<TAB>
-$ make install
-```
-
-It is a lightweight alternative to bash-completion that completes docker, git, kubectl, make,
-mvn, npm and more. You don't need Homebrew bash, the `bash-completion` package or zsh, and
-there are no shell scripts. It shines on parameter monsters like curl and wget. Hundreds of
-flags are grouped to fit your screen.
+You don't need Homebrew bash, the `bash-completion` package or zsh. Pressing TAB runs no
+shell code, and new terminals open as fast as before.
 
 ## Installation
 
-macOS (Apple silicon, Intel) and Linux (x86_64, arm64); no sudo, installs to `~/.local` and
-adds `eval "$(autocomplete bash)"` to `~/.bashrc`:
+macOS (Apple silicon, Intel) and Linux (x86_64, arm64). Works with bash 3.2 or newer. No
+sudo: installs to `~/.local` and adds `eval "$(autocomplete bash)"` to `~/.bashrc`.
 
 ```sh
 curl -fsSL https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
@@ -69,175 +54,150 @@ or with `wget`:
 wget -qO- https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
 ```
 
-Open a new terminal and press TAB after `docker`, `git` or `make`. Manual download,
-building from source, install options and uninstalling: see [Installation options](docs/installation.md).
+Open a new terminal and press TAB after `git`, `docker` or `make`. For manual download,
+building from source, install options and uninstalling, see
+[Installation options](docs/installation.md).
 
-## Snippets: ready-made commands on TAB
+## Snippets
 
 Most completion tools help you spell a flag you already know. Snippets help when you don't
-remember which flags you need: type `@` right after a command and press TAB (see the `tar`
-example above). Each snippet is a complete, working command with a one-letter key and a
-short explanation; `@key<TAB>` inserts it for you to edit. 📌 marks the most used ones,
-which are listed first. A plain TAB never shows snippets, so it keeps completing files,
-hosts and flags as usual.
+remember which flags you need. Type `@` right after the command and press TAB: each snippet
+is a working command with a short key and a one-line explanation. `@key<TAB>` inserts it,
+ready to edit. 📌 marks the most used ones, which are listed first. A plain TAB never shows
+snippets, so it keeps completing files, hosts and flags as usual.
 
-Bundled snippets cover the commands whose flags are hard to remember:
+About 135 commands have snippets. Highlights:
 
 - **curl**, **wget**: POST JSON or form data, uploads, headers only, redirects, resuming
 - **ps**, **lsof**: top CPU/memory processes, who listens on a port, open files of a process
 - **find**, **grep**: recently changed files, large files, recursive search with excludes
-- **tar**: create, extract, list, exclude folders, strip the top folder
-- **zip**, **unzip**, **unrar**: zip a folder without macOS junk, exclude folders, passwords,
-  split archives, `.app` bundles with symlinks, extract into a folder, multi-part RARs;
-  **gzip**/**gunzip**, **xz**/**unxz**, **bzip2**/**bunzip2**, **compress**/**uncompress**:
-  keep the original, read without unpacking, all CPU cores for xz, `.tar.*` via pipes
+- **tar**, **zip**, **unzip**, **unrar**, **gzip**, **xz**, **bzip2**: create, extract, list,
+  exclude folders, zip without macOS junk, passwords, split archives, `.app` bundles
 - **ssh**: port forwarding, jump hosts, SOCKS proxy, remote commands
 - **jq**: pretty-print, pick and filter fields, CSV, shell variables
-- **jfr**: hot methods, GC pauses, allocations from a Java flight recording
-- **brew**: dependency tree (all installed or one formula), what depends on a formula,
-  leaves, unused dependencies, cleanup, Brewfile backup
-- **docker** `system`/`image`/`network`/`container`/`volume prune`, `docker compose config`
-- macOS **defaults** (hidden Finder, Dock and screenshot settings), **sips** (resize, convert
-  HEIC), **pbcopy**, **pbpaste**, **say**, **duti**, **mdls**
+- **brew**: dependency trees, reverse dependencies, leaves, cleanup, Brewfile backup
+- **docker**: `run`, `exec`, the `prune` commands, `compose config`
+- **kubectl**, **rsync**, **ffmpeg**, **openssl**, **jfr** and many more
+- macOS tools: **defaults** (hidden Finder, Dock and screenshot settings), **sips** (resize,
+  convert HEIC), **mdfind**, **pbcopy**, **say**, **duti**
 - Shell keywords **for**, **while**, **until**, **case**, **if**: practical one-liners
-  (`if git <TAB>` still completes git, and so do `then`/`do`/`else`/`elif`)
+  (`if git <TAB>` still completes git)
 
 Add your own with a `snippets:` list in any spec ([format](docs/writing-specs.md)).
 
-Other tools don't do this inside TAB completion. bash-completion, zsh and fish complete
-flags and values only. Separate cheat-sheet tools like [navi](https://github.com/denisidoro/navi)
-or [tldr](https://tldr.sh) show examples, but in their own window or command, not on TAB at the
-prompt you're already typing on.
+bash-completion, zsh and fish complete flags and values only. Cheat-sheet tools like
+[navi](https://github.com/denisidoro/navi) or [tldr](https://tldr.sh) show examples, but in
+a separate command, not at the prompt you're already typing on.
 
-## Features
+## Completion
 
-- Bundled completions for **docker**, **git**, **kubectl**, **make**, **mvn**, **java**, **jfr**,
-  **python**, **node**, **npx**, **bun**, **bunx**, **npm**, **yarn**, **pnpm**, **pip**, **go**,
-  **cargo**, **gradle**, **brew**, **gh**, **ssh**, **scp**, **terraform**, **helm**, **aws**, **az**, **gcloud**, **doctl**, **flyctl**/**fly**, **vercel**, **pulumi**, **minikube**, **kind**,
-  **k9s**, **kubectx**, **kubens**, **ansible**, **ansible-playbook**, **psql**, **pg_dump**, **mysql**,
-  **mysqldump**, **redis-cli**, **sqlite3**, **swift**, **pod**, **fastlane**, **mas**, **ffmpeg**, **pngquant**, **bat**, **fzf**, **colima**, **orbctl**, **pyenv**, **rbenv**, **asdf**, **nvm**,
-  **tmux**, **ps**, **kill**, **pkill**, **killall**, **lsof**, **find**, **grep**, **rg**, **sed**, **awk**, **patch**, **diff**, **tar**, **zip**, **unzip**, **unrar**, **gzip**, **gunzip**, **xz**, **unxz**, **bzip2**, **bunzip2**, **compress**, **uncompress**, **help** (bash builtins), **man** (page names from `manpath`), **jq**, **curl**, **wget**, **rsync**, **openssl**, **dig**, **nc**, **tcpdump**, **code** (VS Code), **claude** (Claude Code),
-  macOS **open**, **launchctl**, **defaults**, **diskutil**, **say**, **caffeinate**, **pbcopy**,
-  **pbpaste**, **sips**, **screencapture**, **duti**, **mdls**, **mdfind**, **pmset**, **networksetup**, **security**, **codesign**, **xcrun**, **plutil**, **hdiutil**, **spctl**, **xattr**, **softwareupdate**, **tccutil**, **scutil**, **mdutil**, **osascript**, **shortcuts**, **dscl**, **log**, **system_profiler**, **ditto**, **textutil**, **afplay**, **qlmanage**, **profiles**, **sw_vers**, **nettop**, **fs_usage**, and `autocomplete` itself.
-- Wrapper commands **sudo**, **env**, **time**, **xargs** complete the command after them with
-  that command's own completion (`sudo git chec<TAB>` → `checkout`).
-- Live values from your environment:
-  - docker: running containers, images, networks, volumes
-  - git: branches, tags, remotes, stashes, changed files
-  - kubectl: namespaces, contexts, pods, nodes, resource types
-  - npm: `package.json` scripts and dependencies
-  - mvn: profiles and modules from `pom.xml`, plugin goals for plugins the project uses
-  - make: Makefile targets and variables, with descriptions from `## text` or the comment
-    above each target (honors `make -C dir` and `make -f file`)
-  - killall, pkill: your running process names; kill, `caffeinate -w`: PIDs with process names
-  - say: voices with language and sample text (`say -v Ed<TAB>`), audio devices
-  - code: installed extensions for `--uninstall-extension`/`--disable-extension`
-  - sips: property keys with types for `-g`/`-s`; screencapture: app bundle ids for `-B`
-  - duti: extensions with their UTI and current app for `-x`; app bundle ids for `-s` (also by app name: `duti -s Preview<TAB>` → `com.apple.Preview`), then every UTI known to the system as `UTI -- .ext → current app` (typing an extension finds its UTIs: `duti -s com.apple.Preview md<TAB>`; when several match they are listed as `ts1: …`, `ts2: …` and `ts2<TAB>` picks the second; the same works for `-d`/`-l`: `duti -d md<TAB>` → `duti -d net.daringfireball.markdown`) (★ = declared by the app, ✔ = currently opens with it), read live from LaunchServices via `osascript`
-    (`duti -s com.apple.Preview com.ad<TAB>` → `com.adobe.pdf`), then the role
-  - mdls: Spotlight attribute names with descriptions for `-name`
-  - ssh, scp: hosts from `~/.ssh/config` and `known_hosts` (`scp gr<TAB>` → `grafana:`)
-  - brew: installed formulae and services
-  - gh: pull requests, issues, workflow runs, gists, labels, releases, repos
-  - yarn, pnpm: `package.json` scripts, dependencies and workspace packages
-  - pip: installed packages; go: packages and test names; cargo: bins, examples, tests
-  - terraform: resources from state, `*.tfvars`; helm: releases, repo charts, namespaces
-  - node: `package.json` scripts for `--run`, test reporters; npx, bunx: binaries in `node_modules/.bin`
-  - bun: scripts, dependencies (`remove`, `why`, `update`), `node_modules/.bin` for `bun x`
-  - python: module names for `-m` (`python3 -m http<TAB>` → `http.server`)
-  - java: source files to run (`java <TAB>`: `*.java` files under the cwd declaring `main`), module names (`-m`, `--add-modules`), jars and class paths
-  - aws: profiles, regions, S3 buckets; az: subscriptions, resource groups, locations; gcloud: projects, configurations, regions, zones, GCS buckets; tmux: sessions and buffers
-  - open: app names (`-a`) and bundle ids (`-b`); launchctl: services and LaunchAgent plists
-- Descriptions next to subcommands and flags when several match
-  (`git stash <TAB>` → `pop  -- Apply a stash and remove it`).
-- [Snippets](#snippets-ready-made-commands-on-tab): `curl @<TAB>` lists ready-made commands,
-  `curl @x<TAB>` inserts one.
+**Bundled commands** (about 150):
+
+- **Version control and build:** git, gh, make, mvn, gradle, cargo, go, swift, pod, fastlane
+- **Languages and packages:** python, pip, pyenv, node, npm, npx, yarn, pnpm, bun, bunx,
+  java, jfr, rbenv, asdf, nvm
+- **Containers and cloud:** docker, colima, orbctl, kubectl, kubectx, kubens, k9s, helm,
+  minikube, kind, terraform, pulumi, ansible, aws, az, gcloud, doctl, flyctl, vercel
+- **Databases:** psql, pg_dump, mysql, mysqldump, redis-cli, sqlite3
+- **Network:** ssh, scp, curl, wget, rsync, openssl, dig, nc, tcpdump
+- **Files and text:** find, grep, rg, sed, awk, diff, patch, jq, bat, fzf, tar, zip, unzip,
+  unrar, gzip, xz, bzip2, compress (and their decompressors)
+- **Processes:** ps, kill, pkill, killall, lsof, tmux
+- **macOS:** brew, mas, open, defaults, launchctl, diskutil, pmset, networksetup, security,
+  codesign, xcrun, plutil, hdiutil, spctl, xattr, softwareupdate, tccutil, scutil, mdutil,
+  mdfind, mdls, osascript, shortcuts, dscl, log, system_profiler, ditto, textutil, sips,
+  screencapture, say, afplay, qlmanage, caffeinate, pbcopy, pbpaste, duti, profiles,
+  sw_vers, nettop, fs_usage
+- **Other:** code (VS Code), claude (Claude Code), ffmpeg, pngquant, man, help, and
+  `autocomplete` itself
+
+**Live values** from your environment, for example:
+
+- git: branches, tags, remotes, stashes, changed files, your aliases
+- docker: containers, images, networks, volumes
+- kubectl: namespaces, contexts, pods, nodes, resource types
+- make: targets and variables, with descriptions from `## text` or the comment above each
+  target (honors `-C dir` and `-f file`)
+- npm, yarn, pnpm, bun, node: `package.json` scripts and dependencies; npx, bunx: binaries
+  in `node_modules/.bin`
+- mvn: profiles, modules and plugin goals from `pom.xml`
+- ssh, scp: hosts from `~/.ssh/config` and `known_hosts` (`scp gr<TAB>` → `grafana:`)
+- java: source files that declare `main` (`java <TAB>`); python: modules for `-m`
+  (`python3 -m http<TAB>` → `http.server`)
+- aws, az, gcloud: profiles, subscriptions, projects, regions, buckets
+- gh: pull requests, issues, workflow runs, releases; helm: releases and charts;
+  terraform: resources from state
+- kill, killall, pkill: running processes; say: voices; open: app names and bundle ids
+- duti: file extensions, app bundle ids (also by app name: `duti -s Preview<TAB>`) and every
+  UTI known to the system, read live from LaunchServices
+
+**More:**
+
+- Descriptions next to subcommands and flags (`git stash <TAB>` →
+  `pop  -- Apply a stash and remove it`).
+- Commands with hundreds of flags, like curl and wget, are grouped to fit your screen.
+- `sudo`, `env`, `time` and `xargs` complete the command after them
+  (`sudo git chec<TAB>` → `checkout`).
 - Handles `--flag=value`, `image:tag`, quoted words and file names with spaces.
-- Add a command by writing a small YAML file, with no rebuild
-  ([how](docs/adding-commands.md)).
-- Generate flag completion for system commands like `ps`, `ls` or `tar` from their man
-  pages, for other tools from their `--help` output, and delegate Go/cobra programs
-  (helm, gh, hugo) to their own live completion ([details](docs/generated-specs.md)).
-- Built-in completion for SSH hosts, users, PIDs, process names and signals; `~user/` paths.
-- Complete shell aliases like the command they wrap (`autocomplete alias kubectl k`).
-
-## Requirements
-
-- bash 3.2 (the macOS `/bin/bash`) or any newer bash.
+- Shell aliases complete like the command they wrap (`autocomplete alias kubectl k`).
+- Any other command: generate a spec from its man page or `--help` output, or hand Go/cobra
+  programs over to their own completion ([details](docs/generated-specs.md)). With
+  `autocomplete bash --man`, every command with a man page completes its flags automatically.
+- Your own commands: write a small YAML file, no rebuild ([how](docs/adding-commands.md)).
 
 ## Commands
 
 | Command | Description |
 |---|---|
-| `autocomplete bash` | Print the bash init script (use with `eval`). |
-| `autocomplete bash --man` | Same, plus every command in `$PATH` that has a man page and no completion yet: its flags are read from the man page on the first TAB and cached (see [Cache](docs/cache.md#man-page-specs)). |
-| `autocomplete list` | List commands that have a spec, one per line with its description. Your own specs in `~/.config/autocomplete` get a tag: `[override]` (replaces a shipped spec; `, unchanged` if identical to it, so you can delete it), `[added]` (no shipped spec), `[alias -> CMD]`, plus `generated: man\|help\|cobra` and `update: NEW > OLD` when the shipped spec is newer. |
-| `autocomplete list --paths` | Same, with the spec file each command uses (handy to see which copy wins, or where a bundled spec lives). |
-| `autocomplete list --user` | Only your own specs in `~/.config/autocomplete` (generated with `add`, aliases, hand-written); combines with `--paths`. |
-| `autocomplete manage` | Same as `list --user` (takes `--paths`/`--tsv`). |
-| `autocomplete list --tsv` | `NAME<TAB>DESCRIPTION` lines (no padding), for scripts and `exec` completers. |
-| `autocomplete check FILE` | Validate a spec and print how it was understood (as JSON). |
-| `autocomplete add [--force] [--from cobra\|man\|help] CMD...` | Write `~/.config/autocomplete/CMD.yaml` from the first source that works: cobra bridge, man page, `CMD --help`. |
-| `autocomplete edit NAME` | Open `~/.config/autocomplete/NAME.yaml` in `$VISUAL` (else `$EDITOR`, else `vi`). An existing copy is opened as is; without one, the shipped spec is copied there first. Warns when the shipped spec has a newer `version`; validates the file after the editor exits; if you saved no changes, the copy is removed (the shipped spec stays in use). |
-| `autocomplete rm [-f] NAME...` | Delete your spec or alias in `~/.config/autocomplete` (and its cache), asking `[y/n]` for each unless `-f`; the shipped spec, if any, is used again. |
-| `autocomplete diff [NAME...]` | `diff -u` of your copies in `~/.config/autocomplete` against the shipped specs, so you can merge what you want (default: every override that differs; see `[override, update: …]` in `list`). Exit 1 if any differ. |
-| `autocomplete alias [--force] CMD NAME...` | Complete `NAME` (e.g. a shell alias) like `CMD` by symlinking `~/.config/autocomplete/NAME.yaml` to its spec. |
-| `autocomplete alias --rm NAME...` | Remove aliases made by `autocomplete alias` (only symlinks are removed). |
-| `autocomplete alias --list` | List aliases as `NAME -> CMD`. |
+| `autocomplete bash [--man]` | Print the init script (use with `eval`). `--man` also registers every command in `$PATH` that has a man page and no spec; its flags are read from the man page on first TAB and [cached](docs/cache.md#man-page-specs). |
+| `autocomplete list [--user] [--paths] [--tsv]` | List commands that have a spec, with descriptions. `--user`: only your specs in `~/.config/autocomplete`. `--paths`: show which spec file is used. `--tsv`: `NAME<TAB>DESCRIPTION` for scripts. Your specs are tagged `[override]`, `[added]` or `[alias -> CMD]`, plus `generated: …` and `update: NEW > OLD` when the shipped spec is newer. |
+| `autocomplete manage` | Same as `list --user`. |
+| `autocomplete add [--force] [--from cobra\|man\|help] CMD...` | Write `~/.config/autocomplete/CMD.yaml` from the first source that works: cobra, man page, `CMD --help`. |
+| `autocomplete edit NAME` | Edit your copy of a spec in `$VISUAL`/`$EDITOR`/`vi`, copying the shipped one first if needed. Validates after saving; an unchanged copy is removed. |
+| `autocomplete diff [NAME...]` | `diff -u` of your copies against the shipped specs. Exits 1 if any differ. |
+| `autocomplete rm [-f] NAME...` | Delete your spec or alias (asks first unless `-f`); the shipped spec is used again. |
+| `autocomplete alias [--force] CMD NAME...` | Complete `NAME` like `CMD`. |
+| `autocomplete alias --rm NAME...` / `--list` | Remove or list aliases. |
+| `autocomplete check FILE` | Validate a spec and print how it was parsed (as JSON). |
 
 ## FAQ
 
-### Is there a Homebrew package?
-
-No. Homebrew has dropped support for Intel (x86_64) Macs, so I don't support Homebrew. Use the curl/wget install script
-([Installation](#installation)) or one of the [other options](docs/installation.md).
-
 ### Why another bash completion tool?
 
-macOS still ships bash 3.2 from 2007, and most modern completion tools have dropped support
-for it:
+macOS still ships bash 3.2 from 2007, and the usual tools have moved on:
 
 - **bash-completion 2.x** requires bash 4.2 or newer.
-- **bash-completion 1.3**, the last version that runs on bash 3.2, is unmaintained. It
-  loads every completion script at shell startup, which makes each new terminal slow to open.
-- The usual workaround is to `brew install bash` and change your login shell.
+- **bash-completion 1.3**, the last version for bash 3.2, is unmaintained and loads every
+  completion script at startup, so each new terminal opens slowly.
+- The common workaround is `brew install bash` and changing your login shell.
 
-autocomplete was built specifically for that bash:
+autocomplete is built for the bash you already have. It's tested against Apple's `/bin/bash`
+and builds with the Xcode Command Line Tools.
 
-- **Built for macOS bash 3.2.** Tested against Apple's `/bin/bash` and Apple clang.
-- **Fast because it's all C.** Bash registers the binary with `complete -C`, so every TAB
-  calls the binary directly. No bash functions, no `sed`/`awk` pipelines, no subshells.
-- **Fast shell startup.** The init line registers commands and loads nothing else. Specs
-  are read only when you press TAB.
-- **No dependencies.** One binary, plain C, builds with the Xcode Command Line Tools.
+### Why is it fast?
 
-### How do I get tab completion for git and docker in macOS bash?
+bash-completion is written in bash and sources its scripts into every shell. autocomplete
+registers its binary with `complete -C`, so each TAB runs compiled C directly: no bash
+functions, `sed`/`awk` pipelines or subshells. Shell startup does only the registration;
+specs are read when you press TAB.
 
-Install autocomplete ([Installation](#installation)) and open a new terminal. You don't need Homebrew
-bash, `bash-completion` or zsh.
+### Is there a Homebrew package?
 
-### Do I need to upgrade bash or switch to zsh?
-
-No. autocomplete is designed for the bash 3.2 that macOS ships as `/bin/bash`.
-
-### Why is it faster than bash-completion?
-
-bash-completion is written in bash and sources its scripts into every shell.
-autocomplete keeps all logic in a compiled C binary that runs only when you press TAB.
-Shell startup does nothing beyond one `complete` registration.
+No. Homebrew has dropped support for Intel Macs, so I don't support it. Use the install script
+above or one of the [other options](docs/installation.md).
 
 ### Can I add completion for my own command?
 
-Yes. Write `~/.config/autocomplete/<command>.yaml` describing subcommands, flags and
+Yes. Write `~/.config/autocomplete/<command>.yaml` describing its subcommands, flags and
 values. See [Adding your own commands](docs/adding-commands.md).
 
 ## Documentation
 
-- [Installation options](docs/installation.md): install script options, manual
-  download, building from source, uninstalling
-- [Adding your own commands](docs/adding-commands.md): a quick start for new commands
-- [Writing specs](docs/writing-specs.md): spec format, value types, supported YAML,
-  where specs are looked up
+- [Installation options](docs/installation.md): install script options, manual download,
+  building from source, uninstalling
+- [Adding your own commands](docs/adding-commands.md): quick start
+- [Writing specs](docs/writing-specs.md): spec format, value types, supported YAML, lookup
+  order
 - [Generating specs](docs/generated-specs.md): `autocomplete add`
 - [Cache](docs/cache.md): man page specs, `exec` output and other cached results
 - [Troubleshooting](docs/troubleshooting.md): common problems and fixes
