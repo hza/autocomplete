@@ -385,8 +385,11 @@ static void group_flags(void) {
  * "pin" = 📌, the most used ones, or an emoji), else 🔥. Differing icons
  * make bash list instead of inserting a common prefix (verified in pty);
  * when all entries share one icon, one gets another (the smallest key 📌,
- * or the largest 🔥 if all are 📌). bash sorts the list, so icons order by
- * code point: 📌 (U+1F4CC) before 🔥 (U+1F525).
+ * or the largest 🔥 if all are 📌). bash sorts the list with strcoll: in C
+ * by bytes (📌 U+1F4CC before 🔥 U+1F525); macOS UTF-8 locales ignore emoji
+ * and U+00A0 but not ASCII space (sorts first) or the keycap digit. So 📌
+ * is followed by a plain space: order keycaps, 📌, 🔥 in C; 📌, 🔥, keycaps
+ * (digits sort after "@") in UTF-8.
  * "@key" typed in full is replaced by the snippet's command after
  * "<name> "; bash keeps a leading "@" in the replaced text (readline
  * special prefix, verified in pty). Snippets not starting with "<name> "
@@ -462,7 +465,12 @@ static void add_snippets(void) {
         ic = icon(e);
         if (same && !strcmp(ic, PUSHPIN)) ic = !strcmp(k->str, last) ? FIRE : ic;
         else if (same && !strcmp(k->str, first)) ic = PUSHPIN;
-        snprintf(name, sizeof name, "%s\xc2\xa0@%s", ic, k->str);
+        if (!strcmp(ic, PUSHPIN)) /* ASCII space: sorts first in UTF-8 locales */
+            snprintf(name, sizeof name, "%s @%s", ic, k->str);
+        else if (isdigit((unsigned char)*ic) && !utf8_locale()) /* keycap drawn 2 cols: no U+00A0 pad */
+            snprintf(name, sizeof name, "%.*s\xc2\xa0@%s", (int)strlen(ic) - 2, ic, k->str);
+        else
+            snprintf(name, sizeof name, "%s\xc2\xa0@%s", ic, k->str);
         if (d) snprintf(desc, sizeof desc, "%s   📚 %s", cmd->str, d);
         emit_desc(name, 0, d ? desc : cmd->str);
     }

@@ -43,6 +43,18 @@ int term_rows(void) {
     return h > 5 ? h : 24;
 }
 
+/* Locale charset is UTF-8 (first set of LC_ALL, LC_CTYPE, LANG). In the C
+ * locale the terminal draws a keycap 2 columns wide, else 1. */
+int utf8_locale(void) {
+    static int r = -1;
+    const char *v = getenv("LC_ALL");
+    if (r >= 0) return r;
+    if (!v || !*v) v = getenv("LC_CTYPE");
+    if (!v || !*v) v = getenv("LANG");
+    r = v && (strstr(v, "UTF-8") || strstr(v, "utf-8") || strstr(v, "UTF8") || strstr(v, "utf8"));
+    return r;
+}
+
 /* Terminal columns of a UTF-8 string: continuation bytes take none and
  * 4-byte sequences (emoji) take two. */
 int dwidth(const char *s) {
@@ -50,7 +62,7 @@ int dwidth(const char *s) {
     for (; *s; s++) {
         unsigned char c = (unsigned char)*s;
         if (c == 0xEF && !memcmp(s, "\xef\xb8\x8f", 3)) { s += 2; continue; } /* U+FE0F */
-        if (c == 0xE2 && !memcmp(s, "\xe2\x83\xa3", 3)) { s += 2; continue; } /* U+20E3 keycap: 0 */
+        if (c == 0xE2 && !memcmp(s, "\xe2\x83\xa3", 3)) { s += 2; w += !utf8_locale(); continue; } /* U+20E3 keycap: 0 (C locale: 1) */
         if ((c & 0xC0) != 0x80) w += c >= 0xF0 ? 2 : 1;
     }
     return w;

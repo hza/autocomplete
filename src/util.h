@@ -10,6 +10,8 @@ void mkdirs(char *dir);
 /* Terminal columns / rows: tty, else $COLUMNS / $LINES, else 80 / 24. */
 int term_width(void);
 int term_rows(void);
+/* Locale is UTF-8 (LC_ALL / LC_CTYPE / LANG); keycaps are 2 columns otherwise. */
+int utf8_locale(void);
 /* Terminal columns of a UTF-8 string (4-byte sequences = 2). */
 int dwidth(const char *s);
 /* Path of the executable `name` in $PATH into out (may be NULL); 0 if none. */
