@@ -1,11 +1,30 @@
-# autocomplete: fast tab completion for macOS bash 3.2
+# autocomplete: command snippets and tab completion for macOS bash 3.2
 
-**Fast tab completion for the stock macOS bash 3.2 (`/bin/bash`), written in C.**
+**Ready-made command snippets on TAB, plus fast tab completion, for the stock macOS bash 3.2
+(`/bin/bash`). Written in C.**
 
-macOS still ships bash 3.2 from 2007, and most modern completion tools have dropped support
-for it. This project was built specifically for that bash. All completion logic runs in a
-single compiled C binary, so pressing TAB doesn't run any shell code. Completion is
-instant and new terminals open as fast as before.
+Can't remember the curl flags for posting JSON, or how to make a tarball? Type the command,
+press TAB, and pick a snippet. `@key<TAB>` inserts the whole command line, ready to edit.
+About 135 commands have snippets, including curl, tar, find, ffmpeg, openssl, docker,
+kubectl and macOS tools such as `defaults`, `sips` and `mdfind`.
+
+```console
+$ tar <TAB>
+📌 @c  -- tar -czf backup.tar.gz project/              📚 create a gzip archive of a folder
+📌 @x  -- tar -xzf backup.tar.gz                       📚 extract a gzip archive here
+📌 @t  -- tar -tzf backup.tar.gz                       📚 list the contents without extracting
+🔥 @d  -- tar -xzf backup.tar.gz -C /tmp/out           📚 extract into another directory
+🔥 @j  -- tar -cJf backup.tar.xz project/              📚 create an xz archive
+...
+$ tar @x<TAB>
+$ tar -xzf backup.tar.gz
+```
+
+Everything else completes too: subcommands, flags with descriptions, and live values such as
+docker networks, git branches and make targets. macOS still ships bash 3.2 from 2007, and
+most modern completion tools have dropped support for it. This project was built
+specifically for that bash. All logic runs in a single compiled C binary, so pressing TAB
+doesn't run any shell code. Completion is instant and new terminals open as fast as before.
 
 ```console
 $ docker run --network <TAB>
@@ -22,23 +41,19 @@ there are no shell scripts. It shines on parameter monsters like curl and wget. 
 flags are grouped to fit your screen, and TAB on an empty argument shows ready-made command
 snippets.
 
-## Why another bash completion tool?
+## Installation
 
-If you use bash on a Mac, you've probably found that completion tools don't support it:
+macOS (Apple silicon, Intel) and Linux (x86_64, arm64); no sudo, installs to `~/.local` and
+adds `eval "$(autocomplete bash)"` to `~/.bashrc`:
 
-- **bash-completion 2.x** requires bash 4.2 or newer.
-- **bash-completion 1.3**, the last version that runs on bash 3.2, is unmaintained. It
-  loads every completion script at shell startup, which makes each new terminal slow to open.
-- The usual workaround is to `brew install bash` and change your login shell.
+```sh
+curl -fsSL https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
+# or
+wget -qO- https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
+```
 
-autocomplete works with the bash already on your Mac:
-
-- **Built for macOS bash 3.2.** Tested against Apple's `/bin/bash` and Apple clang.
-- **Fast because it's all C.** Bash registers the binary with `complete -C`, so every TAB
-  calls the binary directly. No bash functions, no `sed`/`awk` pipelines, no subshells.
-- **Fast shell startup.** The init line registers commands and loads nothing else. Specs
-  are read only when you press TAB.
-- **No dependencies.** One binary, plain C, builds with the Xcode Command Line Tools.
+Open a new terminal and press TAB after `docker`, `git` or `make`. Homebrew, manual download,
+building from source, install options and uninstalling: see [Installation options](docs/installation.md).
 
 ## Snippets: ready-made commands on TAB
 
@@ -147,80 +162,6 @@ prompt you're already typing on.
 - To build from source: the Xcode Command Line Tools (`xcode-select --install`) on macOS, or gcc/clang and make on Linux.
 - bash 3.2 (the macOS `/bin/bash`) or any newer bash.
 
-## Installation
-
-Prebuilt binaries are published for macOS (Apple silicon and Intel) and Linux (x86_64, arm64).
-
-**Homebrew** (macOS, Linux):
-
-```sh
-brew install hza/tap/autocomplete
-echo 'eval "$(autocomplete bash)"' >> ~/.bashrc
-```
-
-**Install script** (no sudo; installs to `~/.local` and adds the `eval` line to `~/.bashrc`):
-
-```sh
-curl -fsSL https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
-# or
-wget -qO- https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
-```
-
-Set `PREFIX=/usr/local`, `PROFILE=~/.bash_profile` or `VERSION=v0.1.0` for `sh` to change the
-defaults (e.g. `... | PREFIX=$HOME/bin sh`). The script verifies the download's SHA-256
-checksum. Uninstall with `... | sh -s -- --uninstall` (same `PREFIX`/`PROFILE`).
-
-### From source
-
-```sh
-git clone https://github.com/hza/bash-autocomplete.git autocomplete
-cd autocomplete
-make install
-```
-
-`make install`:
-
-- installs the binary to `/usr/local/bin/autocomplete`,
-- installs the bundled specs to `/usr/local/share/autocomplete/`,
-- precompiles any spec over 100 KB into the cache,
-- adds `eval "$(autocomplete bash)"` to `~/.bashrc`, unless it's already there.
-
-Open a new terminal (or run `source ~/.bashrc`) and press TAB after `docker`, `git` or `make`.
-
-> macOS Terminal starts login shells, which read `~/.bash_profile`, not `~/.bashrc`.
-> `make install` warns if your `~/.bash_profile` doesn't load `~/.bashrc`; add
-> `[ -f ~/.bashrc ] && . ~/.bashrc` to it.
-
-Options:
-
-```sh
-make install PREFIX=$HOME/.local          # install without sudo (put ~/.local/bin on PATH first)
-make install PROFILE=$HOME/.bash_profile  # use a different startup file
-```
-
-If `/usr/local` isn't writable, use `sudo make install`. In that case the cache isn't built
-during install; it's built on your first completion instead.
-
-### Using it without installing
-
-```sh
-make
-eval "$(./autocomplete bash)"                     # recommended
-source /dev/stdin <<<"$(./autocomplete bash)"     # if you prefer `source`
-```
-
-> `source <(autocomplete bash)` does **not** work in bash 3.2. A long-standing bash bug
-> makes it silently read nothing. Use one of the forms above.
-
-### Uninstalling
-
-```sh
-make uninstall          # use the same PREFIX / PROFILE you installed with
-```
-
-This removes the binary, the bundled specs, their cache files and the exact `eval` line
-from your profile. Your own specs in `~/.config/autocomplete` are left untouched.
-
 ## Commands
 
 | Command | Description |
@@ -242,6 +183,24 @@ from your profile. Your own specs in `~/.config/autocomplete` are left untouched
 | `autocomplete alias --list` | List aliases as `NAME -> CMD`. |
 
 ## FAQ
+
+### Why another bash completion tool?
+
+If you use bash on a Mac, you've probably found that completion tools don't support it:
+
+- **bash-completion 2.x** requires bash 4.2 or newer.
+- **bash-completion 1.3**, the last version that runs on bash 3.2, is unmaintained. It
+  loads every completion script at shell startup, which makes each new terminal slow to open.
+- The usual workaround is to `brew install bash` and change your login shell.
+
+autocomplete works with the bash already on your Mac:
+
+- **Built for macOS bash 3.2.** Tested against Apple's `/bin/bash` and Apple clang.
+- **Fast because it's all C.** Bash registers the binary with `complete -C`, so every TAB
+  calls the binary directly. No bash functions, no `sed`/`awk` pipelines, no subshells.
+- **Fast shell startup.** The init line registers commands and loads nothing else. Specs
+  are read only when you press TAB.
+- **No dependencies.** One binary, plain C, builds with the Xcode Command Line Tools.
 
 ### How do I get tab completion for git and docker in macOS bash?
 
@@ -265,6 +224,8 @@ values. See [Adding your own commands](docs/adding-commands.md).
 
 ## Documentation
 
+- [Installation options](docs/installation.md): install script options, Homebrew, manual
+  download, building from source, uninstalling
 - [Adding your own commands](docs/adding-commands.md): a quick start for new commands
 - [Writing specs](docs/writing-specs.md): spec format, value types, supported YAML,
   where specs are looked up
@@ -272,18 +233,6 @@ values. See [Adding your own commands](docs/adding-commands.md).
 - [Cache](docs/cache.md): man page specs, `exec` output and other cached results
 - [Troubleshooting](docs/troubleshooting.md): common problems and fixes
 - [How it works](docs/how-it-works.md): what happens when you press TAB
-
-## Building from source
-
-```sh
-make            # builds ./autocomplete
-make clean
-```
-
-The code is plain C with no dependencies, in `src/`: `main.c` (subcommands), `complete.c`
-(spec walk), `output.c` (candidate list and display), `builtins.c` (files, make, `$PATH`,
-`exec` completers), `spec.c` (spec lookup and cache), `yaml.c` (YAML reader and writer),
-`manparse.c` (man page reader) and `util.c`. Bundled specs live in `specs/`, grouped into topic subfolders (`vcs/`, `cloud/`, `lang/`, …); specs are found at any depth.
 
 ## License
 

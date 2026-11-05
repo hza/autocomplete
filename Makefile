@@ -99,7 +99,7 @@ docker-run: docker-build  ## Rebuild and open an interactive bash shell in Docke
 clean:  ## Delete the built binary and dist/
 	rm -rf autocomplete dist
 
-LLMS_DOCS = README.md docs/adding-commands.md docs/writing-specs.md docs/generated-specs.md \
+LLMS_DOCS = README.md docs/installation.md docs/adding-commands.md docs/writing-specs.md docs/generated-specs.md \
 	docs/troubleshooting.md docs/how-it-works.md docs/cache.md
 
 llms-full.txt: $(LLMS_DOCS)  ## Regenerate llms-full.txt from README and docs
