@@ -1,7 +1,7 @@
 # How it works
 
 `autocomplete bash` prints one `complete -C` line that registers `autocomplete _complete`
-for every command that has a spec; no shell function is defined. `autocomplete bash --man`
+for every command that has a spec; no shell function is defined. `autocomplete bash --all-man`
 also registers every `$PATH` command with a section 1 or 8 man page, skipping commands that
 already have a completion (bash-completion, Homebrew scripts loaded earlier) and those with
 a spec. For such a command the first TAB parses its man page (`man -P cat`, never running

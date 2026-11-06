@@ -137,15 +137,15 @@ a separate command, not at the prompt you're already typing on.
 - Shell aliases complete like the command they wrap (`autocomplete alias kubectl k`).
 - Any other command: generate a spec from its man page or `--help` output, or hand Go/cobra
   programs over to their own completion ([details](docs/generated-specs.md)). With
-  `autocomplete bash --man`, every command with a man page completes its flags automatically.
+  `autocomplete bash --all-man`, every command with a man page completes its flags automatically.
 - Your own commands: write a small YAML file, no rebuild ([how](docs/adding-commands.md)).
 
 ## Commands
 
 | Command | Description |
 |---|---|
-| `autocomplete bash [--man]` | Print the init script (use with `eval`). `--man` also registers every command in `$PATH` that has a man page and no spec; its flags are read from the man page on first TAB and [cached](docs/cache.md#man-page-specs). |
-| `autocomplete zsh [--man]` | Same for zsh: defines one completion function and registers it with `compdef` (loads `compinit` if needed). |
+| `autocomplete bash [--all-man]` | Print the init script (use with `eval`). `--all-man` also registers every command in `$PATH` that has a man page and no spec; its flags are read from the man page on first TAB and [cached](docs/cache.md#man-page-specs). |
+| `autocomplete zsh [--all-man]` | Same for zsh: defines one completion function and registers it with `compdef` (loads `compinit` if needed). |
 | `autocomplete list [--user] [--paths] [--tsv]` | List commands that have a spec, with descriptions. `--user`: only your specs in `~/.config/autocomplete`. `--paths`: show which spec file is used. `--tsv`: `NAME<TAB>DESCRIPTION` for scripts. Your specs are tagged `[override]`, `[added]` or `[alias -> CMD]`, plus `generated: …` and `update: NEW > OLD` when the shipped spec is newer. |
 | `autocomplete manage` | Same as `list --user`. |
 | `autocomplete add [--force] [--from cobra\|man\|help] CMD...` | Write `~/.config/autocomplete/CMD.yaml` from the first source that works: cobra, man page, `CMD --help`. |

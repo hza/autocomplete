@@ -145,15 +145,15 @@ a separate command, not at the prompt you're already typing on.
 - Shell aliases complete like the command they wrap (`autocomplete alias kubectl k`).
 - Any other command: generate a spec from its man page or `--help` output, or hand Go/cobra
   programs over to their own completion ([details](docs/generated-specs.md)). With
-  `autocomplete bash --man`, every command with a man page completes its flags automatically.
+  `autocomplete bash --all-man`, every command with a man page completes its flags automatically.
 - Your own commands: write a small YAML file, no rebuild ([how](docs/adding-commands.md)).
 
 ## Commands
 
 | Command | Description |
 |---|---|
-| `autocomplete bash [--man]` | Print the init script (use with `eval`). `--man` also registers every command in `$PATH` that has a man page and no spec; its flags are read from the man page on first TAB and [cached](docs/cache.md#man-page-specs). |
-| `autocomplete zsh [--man]` | Same for zsh: defines one completion function and registers it with `compdef` (loads `compinit` if needed). |
+| `autocomplete bash [--all-man]` | Print the init script (use with `eval`). `--all-man` also registers every command in `$PATH` that has a man page and no spec; its flags are read from the man page on first TAB and [cached](docs/cache.md#man-page-specs). |
+| `autocomplete zsh [--all-man]` | Same for zsh: defines one completion function and registers it with `compdef` (loads `compinit` if needed). |
 | `autocomplete list [--user] [--paths] [--tsv]` | List commands that have a spec, with descriptions. `--user`: only your specs in `~/.config/autocomplete`. `--paths`: show which spec file is used. `--tsv`: `NAME<TAB>DESCRIPTION` for scripts. Your specs are tagged `[override]`, `[added]` or `[alias -> CMD]`, plus `generated: …` and `update: NEW > OLD` when the shipped spec is newer. |
 | `autocomplete manage` | Same as `list --user`. |
 | `autocomplete add [--force] [--from cobra\|man\|help] CMD...` | Write `~/.config/autocomplete/CMD.yaml` from the first source that works: cobra, man page, `CMD --help`. |
@@ -305,7 +305,7 @@ The same binary and specs work in zsh. Add this line to `~/.zshrc` (the installe
 for you when `~/.zshrc` exists or zsh is your login shell):
 
 ```sh
-eval "$(autocomplete zsh)"           # or: eval "$(autocomplete zsh --man)"
+eval "$(autocomplete zsh)"           # or: eval "$(autocomplete zsh --all-man)"
 ```
 
 It runs `compinit` if your `~/.zshrc` hasn't already, then registers one completion function
@@ -722,7 +722,7 @@ See also [Cache](cache.md): `AUTOCOMPLETE_NOCACHE=1` rules out a stale cache.
 # How it works
 
 `autocomplete bash` prints one `complete -C` line that registers `autocomplete _complete`
-for every command that has a spec; no shell function is defined. `autocomplete bash --man`
+for every command that has a spec; no shell function is defined. `autocomplete bash --all-man`
 also registers every `$PATH` command with a section 1 or 8 man page, skipping commands that
 already have a completion (bash-completion, Homebrew scripts loaded earlier) and those with
 a spec. For such a command the first TAB parses its man page (`man -P cat`, never running
@@ -774,7 +774,7 @@ library. Shell startup doesn't read specs at all: `autocomplete bash` only lists
 
 ## Man page specs
 
-With `eval "$(autocomplete bash --man)"`, commands without a spec get one generated from
+With `eval "$(autocomplete bash --all-man)"`, commands without a spec get one generated from
 their man page on the first TAB (about 0.15 s), stored in `~/.cache/autocomplete/man/<command>.yaml`.
 A page that lists no options leaves an empty file, so it isn't parsed again. It is
 regenerated when the command's executable or the `autocomplete` binary (a parser update) is newer. To fix up a generated spec, copy it to

@@ -39,4 +39,4 @@ call per lookup dir. Only the helper-script paths need fixing.
 
 1. `exec` values: each runs `popen` → `sh` → the command (5–50+ ms).
 2. Specs under `CACHE_MIN` (100 KB): parsed from YAML on every TAB.
-3. `$PATH` / man directory scans (`@command`, `bash --man` init).
+3. `$PATH` / man directory scans (`@command`, `bash --all-man` init).

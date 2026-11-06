@@ -20,7 +20,7 @@ int find_bundled(const char *name, char *path, size_t size);
 int cache_dir(const char *sub, char *dir, size_t size);
 /* Load a spec; exports AUTOCOMPLETE_SPEC_DIR. */
 ynode *load_spec(const char *name);
-/* Spec from `name`'s man page, cached in <cache dir>/man (`bash --man`). */
+/* Spec from `name`'s man page, cached in <cache dir>/man (`bash --all-man`). */
 ynode *load_man_spec(const char *name);
 /* Name of the last loaded spec after resolving symlinks (fly -> "flyctl"). */
 extern char g_spec_real[256];

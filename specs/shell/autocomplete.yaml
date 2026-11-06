@@ -1,10 +1,10 @@
-version: '20261015'
+version: '20261106'
 description: "Bash completion engine"
 commands:
   bash:
     description: 'Print the bash init script: use with eval "$(autocomplete bash)"'
     flags:
-      --man: {description: "Also complete every command with a man page, from the man page"}
+      --all-man: {description: "Also complete every command with a man page, from the man page"}
   list:
     description: "List commands that have a spec, with descriptions"
     flags:
