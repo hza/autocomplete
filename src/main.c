@@ -622,6 +622,8 @@ static void print_zsh(const char *self, int man) {
            "  done\n"
            "  # several snippets: list only, like bash; `@key<TAB>` then expands that one\n"
            "  [[ $PREFIX == @* ]] && (( compstate[nmatches] > 1 )) && { compstate[insert]=''; compstate[list]='list force'; }\n"
+           "  # one match is inserted: clear a list left by the previous TAB (zsh keeps it)\n"
+           "  (( compstate[nmatches] == 1 )) && zle -R -c 2>/dev/null\n"
            "  (( compstate[nmatches] )) && return 0\n"
            "  [[ $PREFIX == ?*@* ]] && compset -P '*@' && _hosts\n"
            "}\n", q);

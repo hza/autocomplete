@@ -88,7 +88,7 @@ docker, …). Re-run the line after adding a spec.
 zsh shows descriptions, groups and menus natively, so a few bash-specific tricks are left out.
 Long flag lists aren't folded into `--`, `📌` or `🧩` entries. Snippets work as in bash: `@<TAB>` lists them as `@key  -- command`
 without changing the line, and `@key<TAB>`
-substitutes that command directly, as in bash. `$VAR`, `~user` and
+substitutes that command directly, as in bash. A list left from the previous TAB is cleared once a single match is inserted. `$VAR`, `~user` and
 `user@host` words use zsh's own completion.
 
 ## Uninstalling a source install
