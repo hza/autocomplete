@@ -100,7 +100,7 @@ a separate command, not at the prompt you're already typing on.
   mdfind, mdls, osascript, shortcuts, dscl, log, system_profiler, ditto, textutil, sips,
   screencapture, say, afplay, qlmanage, caffeinate, pbcopy, pbpaste, duti, profiles,
   sw_vers, nettop, fs_usage
-- **Other:** code (VS Code), claude (Claude Code), ffmpeg, pngquant, man, help, and
+- **Other:** code (VS Code), claude (Claude Code), ffmpeg, pngquant, jpegtran, man, help, and
   `autocomplete` itself
 
 **Live values** from your environment, for example:
@@ -172,6 +172,16 @@ bash-completion is written in bash and sources its scripts into every shell. aut
 registers its binary with `complete -C`, so each TAB runs compiled C directly: no bash
 functions, `sed`/`awk` pipelines or subshells. Shell startup does only the registration;
 specs are read when you press TAB.
+
+### Why C and not Rust?
+
+- **Nothing extra to install.** C builds with the Xcode Command Line Tools that most Macs
+  already have. Rust needs `rustup` and a toolchain of about 1 GB just to run `make`.
+- **Size.** The whole engine, including its own YAML parser, is a ~95 KB binary with no
+  dependencies. A Rust "Hello, world!" release build is already ~300 KB, because Rust's
+  standard library is built into every program.
+- **Startup time.** The binary starts on every TAB, so a small binary that only uses libc keeps
+  each completion fast.
 
 ### Is there a Homebrew package?
 

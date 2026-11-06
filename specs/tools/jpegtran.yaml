@@ -1,0 +1,68 @@
+version: '20261106'
+description: "Lossless JPEG transformations (optimize, rotate, crop, strip metadata)"
+flags:
+  -copy:
+    value: {enum: {none: "no extra markers (strip EXIF/ICC/comments)", comments: "comment markers only (default)", icc: "ICC profile only", all: "all extra markers"}}
+    description: "Which extra markers to copy from the source"
+  -optimize: {description: "Optimize Huffman tables (smaller file, lossless)"}
+  -progressive: {description: "Write a progressive JPEG"}
+  -crop: {value: {enum: {WxH+X+Y: "width x height at offset"}}, description: "Crop to a rectangle (WxH+X+Y)"}
+  -drop: {value: any, description: "Insert another image: -drop +X+Y file"}
+  -flip:
+    value: {enum: {horizontal: "mirror left-right", vertical: "mirror top-bottom"}}
+    description: "Mirror the image"
+  -grayscale: {description: "Reduce to grayscale"}
+  -perfect: {description: "Fail on non-transformable edge blocks"}
+  -roll: {value: any, description: "Roll image with wraparound (+X+Y)"}
+  -rotate:
+    value: {enum: {'90': "clockwise", '180': "upside down", '270': "counter-clockwise"}}
+    description: "Rotate clockwise by degrees"
+  -transpose: {description: "Transpose (flip across top-left/bottom-right diagonal)"}
+  -transverse: {description: "Transverse transpose (other diagonal)"}
+  -trim: {description: "Drop non-transformable edge blocks"}
+  -wipe: {value: any, description: "Gray out a rectangle (WxH+X+Y)"}
+  -arithmetic: {description: "Use arithmetic coding"}
+  -icc: {value: {file: "*.icc *.icm"}, description: "Embed ICC profile from FILE"}
+  -restart: {value: any, description: "Restart interval in rows (or blocks with B)"}
+  -maxmemory: {value: any, description: "Maximum memory in KB"}
+  -maxscans: {value: any, description: "Maximum scans allowed in input"}
+  -outfile: {value: {file: "*.jpg *.jpeg"}, description: "Output file (default stdout)"}
+  -nooverwrite: {description: "Don't overwrite an existing output file"}
+  -report: {description: "Report progress"}
+  -strict: {description: "Treat warnings as fatal"}
+  -verbose: {description: "Debug output"}
+  -version: {description: "Print version"}
+  -scans: {value: file, description: "Multi-scan script file"}
+args: {file: "*.jpg *.jpeg *.JPG *.JPEG"}
+snippets:
+  - key: o
+    mark: pin
+    command: "jpegtran -copy none -optimize -outfile small.jpg image.jpg"
+    description: "lossless shrink: optimize tables, strip metadata"
+  - key: p
+    mark: pin
+    command: "jpegtran -copy none -optimize -progressive -outfile small.jpg image.jpg"
+    description: "lossless shrink as progressive JPEG (often smallest)"
+  - key: a
+    mark: pin
+    command: "jpegtran -copy all -optimize -progressive -outfile small.jpg image.jpg"
+    description: "lossless shrink as progressive JPEG, keep all metadata"
+  - key: m
+    command: "jpegtran -copy all -optimize -outfile small.jpg image.jpg"
+    description: "optimize but keep EXIF/ICC metadata"
+  - key: r
+    mark: pin
+    command: "jpegtran -copy all -perfect -rotate 90 -outfile rotated.jpg image.jpg"
+    description: "rotate 90° clockwise losslessly (fails if not exact)"
+  - key: f
+    command: "jpegtran -copy all -flip horizontal -outfile flipped.jpg image.jpg"
+    description: "mirror left-right"
+  - key: g
+    command: "jpegtran -copy none -grayscale -outfile gray.jpg image.jpg"
+    description: "convert to grayscale losslessly"
+  - key: c
+    command: "jpegtran -copy all -crop 800x600+0+0 -outfile cropped.jpg image.jpg"
+    description: "crop to 800x600 from the top-left corner"
+  - key: s
+    command: "jpegtran -copy none -optimize < image.jpg > small.jpg"
+    description: "stdin to stdout"
