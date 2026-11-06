@@ -1,0 +1,381 @@
+version: '20261106'
+description: MacPorts package manager
+flags:
+  -v: {description: "Verbose mode", show: always}
+  -d: {description: "Debug mode, implies -v"}
+  -q: {description: "Quiet mode, implies -N", show: always}
+  -N: {description: "Non-interactive: don't ask questions"}
+  -n: {description: "Don't follow dependencies (install, upgrade)"}
+  -R: {description: "Also upgrade dependents (upgrade)"}
+  -u: {description: "Uninstall inactive ports (upgrade, uninstall)"}
+  -y: {description: "Dry run: compute the steps, don't perform them", show: always}
+  -s: {description: "Build from source, don't fetch binary archives"}
+  -b: {description: "Binary only: abort if no archive is available"}
+  -c: {description: "Autoclean after install"}
+  -k: {description: "Keep work files after install"}
+  -p: {description: "Proceed despite errors with multiple ports"}
+  -o: {description: "Honor state files even if the Portfile changed"}
+  -t: {description: "Trace mode: report undeclared dependencies"}
+  -f: {description: "Force mode, ignore state files"}
+  -D: {value: [dir, {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}], description: "Change to a port directory (or a port's) first"}
+  -F: {value: file, description: "Read commands from a file (- for stdin)"}
+commands:
+  search:
+    description: Search ports by name or description (regex)
+    flags:
+      --case-sensitive: {description: "Match case"}
+      --exact: {description: "Exact match"}
+      --glob: {description: "Glob pattern"}
+      --regex: {description: "Regular expression (default)"}
+      --line: {description: "One line per port"}
+      --name: {description: "Search names only", show: always}
+      --description: {description: "Search descriptions"}
+      --long_description: {description: "Search long descriptions"}
+      --category: {aliases: [--categories], description: "Search categories"}
+      --maintainer: {aliases: [--maintainers], description: "Search maintainers"}
+      --homepage: {description: "Search homepages"}
+      --portdir: {description: "Search port directories"}
+      --variant: {aliases: [--variants], description: "Search variant names"}
+      --depends: {description: "Search all dependencies"}
+      --depends_build: {description: "Search build dependencies"}
+      --depends_lib: {description: "Search library dependencies"}
+      --depends_run: {description: "Search runtime dependencies"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  info:
+    description: Show port information (all fields, or the ones given)
+    flags:
+      --index: {description: "Read the PortIndex, not the Portfile (no variant effects)"}
+      --line: {description: "One line per port, fields separated by spaces"}
+      --pretty: {description: "Human-readable (default without fields)"}
+      --name: {description: "Name field"}
+      --version: {description: "Version field"}
+      --revision: {description: "Revision field"}
+      --epoch: {description: "Epoch field"}
+      --fullname: {description: "name @version_revision+variants"}
+      --description: {description: "Short description"}
+      --long_description: {description: "Long description"}
+      --homepage: {description: "Homepage URL"}
+      --category: {aliases: [--categories], description: "Categories"}
+      --maintainer: {aliases: [--maintainers], description: "Maintainers"}
+      --license: {description: "License"}
+      --variant: {aliases: [--variants], description: "Variants"}
+      --depends: {description: "All dependencies"}
+      --depends_fetch: {description: "Fetch dependencies"}
+      --depends_extract: {description: "Extract dependencies"}
+      --depends_build: {description: "Build dependencies"}
+      --depends_lib: {description: "Library dependencies"}
+      --depends_run: {description: "Runtime dependencies"}
+      --conflicts: {description: "Conflicting ports"}
+      --platform: {aliases: [--platforms], description: "Platforms"}
+      --portdir: {description: "Port directory"}
+      --patchfiles: {description: "Patch files"}
+      --replaced_by: {description: "Replacement port"}
+      --subports: {description: "Subports"}
+      --heading: {description: "Heading"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  notes:
+    description: Show setup notes of a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  variants:
+    description: List the variants of a port
+    flags:
+      --index: {description: "Read the PortIndex, not the Portfile"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  deps:
+    description: Dependencies of a port
+    flags:
+      --index: {description: "Use the PortIndex (faster, ignores variants)"}
+      --no-build: {description: "Skip build-only dependencies"}
+      --no-test: {description: "Skip test dependencies"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  rdeps:
+    description: Dependencies of a port, recursively
+    flags:
+      --full: {description: "Full tree, repeating shared dependencies", show: always}
+      --index: {description: "Use the PortIndex (faster, ignores variants)"}
+      --no-build: {description: "Skip build-only dependencies"}
+      --no-test: {description: "Skip test dependencies"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  dependents:
+    description: Installed ports that depend on a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  rdependents:
+    description: Installed ports that depend on a port, recursively
+    flags:
+      --full: {description: "Full tree"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  install:
+    description: Install and activate ports (+variant to enable, -variant to disable)
+    flags:
+      --no-rev-upgrade: {description: "Don't run rev-upgrade afterwards"}
+      --unrequested: {description: "Don't mark as requested"}
+      --allow-failing: {description: "Try even if the port is known to fail"}
+      --no-replace: {description: "Install even if replaced by another port"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  uninstall:
+    description: Deactivate and uninstall ports
+    flags:
+      --follow-dependents: {description: "Also uninstall ports depending on it"}
+      --follow-dependencies: {description: "Also uninstall its now unneeded dependencies", show: always}
+      --no-exec: {description: "Don't run pre/post-uninstall procedures"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  upgrade:
+    description: Upgrade ports and their dependencies (usually "outdated")
+    flags:
+      --enforce-variants: {description: "Rebuild to apply the given variants"}
+      --force: {description: "Rebuild even if up to date"}
+      --no-replace: {description: "Don't switch to a replacement port"}
+      --no-rev-upgrade: {description: "Don't run rev-upgrade afterwards"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" outdated'}
+  outdated:
+    description: List installed ports with newer versions
+  installed:
+    description: List installed ports with versions, variants and status
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  activate:
+    description: Activate an installed port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" inactive'}
+  deactivate:
+    description: Deactivate an installed port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  setrequested:
+    description: Mark ports as requested
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  unsetrequested:
+    description: Mark ports as unrequested
+    aliases: [setunrequested]
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  location:
+    description: Install location (archive) of a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  contents:
+    description: Files installed by a port
+    flags:
+      --size: {description: "Show file sizes"}
+      --units: {value: {enum: [B, K, Ki, Mi, Gi, KB, MB, GB]}, description: "Size unit"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  provides:
+    description: Which port installed a file
+    args: file
+  reclaim:
+    description: Uninstall inactive ports and delete unneeded files
+    flags:
+      --keep-build-deps: {description: "Keep build dependencies of requested ports"}
+      --enable-reminders: {description: "Remind to run reclaim regularly"}
+      --disable-reminders: {description: "Stop reclaim reminders"}
+  select:
+    description: Choose the default version of a group (python, gcc, ...)
+    flags:
+      --summary: {description: "All groups with their selection", show: always}
+      --show: {description: "Current selection of a group", show: always}
+      --list: {description: "Versions of a group", show: always}
+      --set: {description: "Select a version", show: always}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" select'}
+  sync:
+    description: Update the ports tree only
+  selfupdate:
+    description: Update MacPorts itself and the ports tree
+    flags:
+      --no-sync: {description: "Don't sync the ports tree"}
+      --migrate: {description: "Rebuild MacPorts even if up to date (after an OS upgrade)"}
+  rev-upgrade:
+    description: Rebuild ports with broken binaries
+    flags:
+      --id-loadcmd-check: {description: "Also check the Mach-O id load command"}
+  clean:
+    description: Remove build files of ports
+    flags:
+      --work: {description: "Work directory (default)"}
+      --dist: {description: "Downloaded distfiles"}
+      --archive: {description: "Temporary archives"}
+      --logs: {description: "Log files"}
+      --all: {description: "All of the above", show: always}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  log:
+    description: Show the build log of a port
+    flags:
+      --phase: {value: {enum: [fetch, checksum, extract, patch, configure, build, destroot]}, description: "Only this phase"}
+      --level: {value: {enum: [error, warn, msg, info, debug]}, description: "Only this message level"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  logfile:
+    description: Path of the build log of a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  echo:
+    description: Print the ports an expression expands to
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  list:
+    description: List the latest version of ports
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  load:
+    description: Load a port's launchd daemon
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  unload:
+    description: Unload a port's launchd daemon
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  reload:
+    description: Reload a port's launchd daemon
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" installed'}
+  gohome:
+    description: Open a port's homepage in the browser
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  snapshot:
+    description: Save or manage snapshots of the installed ports
+    flags:
+      --create: {description: "Create a snapshot", show: always}
+      --note: {value: any, description: "Note for the new snapshot"}
+      --list: {description: "List snapshots", show: always}
+      --diff: {value: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" snapshots'}, description: "Compare a snapshot with the installed ports"}
+      --all: {description: "With --diff: also unrequested ports"}
+      --delete: {value: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" snapshots'}, description: "Delete a snapshot"}
+      --export: {value: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" snapshots'}, description: "Export a snapshot as JSON"}
+      --import: {value: file, description: "Import a snapshot file"}
+  restore:
+    description: Reinstall the ports of a snapshot
+    flags:
+      --snapshot-id: {value: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" snapshots'}, description: "Snapshot to restore"}
+      --last: {description: "The latest snapshot", show: always}
+      --all: {description: "Also unrequested ports"}
+  migrate:
+    description: Reinstall MacPorts and requested ports after an OS or CPU change
+    flags:
+      --all: {description: "Also unrequested ports"}
+      --continue: {description: "Resume an interrupted migration"}
+  mirror:
+    description: Mirror the distfiles of ports
+    flags:
+      --new: {description: "Reset the filemap database"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  version:
+    description: Print the MacPorts version
+  help:
+    description: Help for an action
+    args: "@subcommands"
+  usage:
+    description: Condensed usage summary
+  dir:
+    description: Directory containing a port's Portfile
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  work:
+    description: Work directory of a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  file:
+    description: Path of a port's Portfile
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  url:
+    description: URL of a port's directory
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  cat:
+    description: Print a port's Portfile
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  edit:
+    description: Open a port's Portfile in an editor
+    flags:
+      --editor: {value: "@command", description: "Editor to use"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  fetch:
+    description: Fetch the distribution files of a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  checksum:
+    description: Verify the checksums of the distfiles
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  extract:
+    description: Extract the distfiles of a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  patch:
+    description: Apply the patches of a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  configure:
+    description: Run the configure phase
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  build:
+    description: Build a port
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  destroot:
+    description: Install a port into a temporary directory
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  test:
+    description: Run a port's tests
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  lint:
+    description: Check a Portfile
+    flags:
+      --nitpick: {description: "Also whitespace and patchfile names"}
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  bump:
+    description: Update a port's checksums and revision
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  distcheck:
+    description: Check the distfiles can still be fetched
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  distfiles:
+    description: Show distfiles, checksums and URLs
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  livecheck:
+    description: Check for a newer upstream version
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  pkg:
+    description: Build a macOS installer package
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  mpkg:
+    description: Build an installer metapackage with dependencies
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  dmg:
+    description: Build a disk image with the package
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+  mdmg:
+    description: Build a disk image with the metapackage
+    args: {exec: 'sh "$AUTOCOMPLETE_SPEC_DIR/port.sh" ports'}
+snippets:
+  - key: s
+    mark: pin
+    command: "port selfupdate"
+    description: "update MacPorts and the ports tree (sudo)"
+  - key: u
+    mark: pin
+    command: "port upgrade outdated"
+    description: "upgrade everything outdated (sudo)"
+  - key: o
+    mark: pin
+    command: "port outdated"
+    description: "installed ports with a newer version"
+  - key: r
+    mark: pin
+    command: "port installed requested"
+    description: "ports you installed on purpose (your real list)"
+  - key: l
+    command: "port echo leaves"
+    description: "dependencies nothing needs anymore"
+  - key: x
+    command: "port uninstall leaves"
+    description: "remove those leaves (sudo; repeat until none left)"
+  - key: c
+    mark: pin
+    command: "port reclaim"
+    description: "uninstall inactive versions, delete leftover files (sudo)"
+  - key: i
+    command: "port uninstall inactive"
+    description: "remove old inactive versions (sudo)"
+  - key: d
+    command: "port rdeps --index --no-build vim"
+    description: "runtime dependency tree of a port, fast"
+  - key: e
+    command: "port rdependents openssl3"
+    description: "installed ports that need it, directly or not"
+  - key: f
+    command: "port provides /opt/local/bin/python3"
+    description: "which port installed this file"
+  - key: g
+    command: "port search --name --glob 'py313-*'"
+    description: "search names only, glob pattern"
+  - key: p
+    command: "port select --summary"
+    description: "default versions of python, gcc, llvm..."
+  - key: v
+    command: "port -v installed"
+    description: "installed ports with platform, archs, date"
+  - key: n
+    command: "port snapshot --create --note before-upgrade"
+    description: "snapshot installed ports before something risky (sudo)"
+  - key: m
+    command: "port migrate"
+    description: "rebuild everything after a macOS upgrade (sudo)"

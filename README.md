@@ -60,6 +60,7 @@ snippets, so it keeps completing files, hosts and flags as usual.
 
 About 135 commands have snippets. Highlights:
 
+- **port** (MacPorts): selfupdate, upgrade outdated, leaves, reclaim, reverse dependencies
 - **curl**, **wget**: POST JSON or form data, uploads, headers only, redirects, resuming
 - **ps**, **lsof**: top CPU/memory processes, who listens on a port, open files of a process
 - **find**, **grep**: recently changed files, large files, recursive search with excludes
@@ -95,11 +96,11 @@ a separate command, not at the prompt you're already typing on.
 - **Files and text:** find, grep, rg, sed, awk, diff, patch, jq, bat, fzf, tar, zip, unzip,
   unrar, gzip, xz, bzip2, compress (and their decompressors)
 - **Processes:** ps, kill, pkill, killall, lsof, tmux
-- **macOS:** brew, mas, open, defaults, launchctl, diskutil, pmset, networksetup, security,
-  codesign, xcrun, plutil, hdiutil, spctl, xattr, softwareupdate, tccutil, scutil, mdutil,
-  mdfind, mdls, osascript, shortcuts, dscl, log, system_profiler, ditto, textutil, sips,
-  screencapture, say, afplay, qlmanage, caffeinate, pbcopy, pbpaste, duti, profiles,
-  sw_vers, nettop, fs_usage
+- **macOS:** brew, port (MacPorts), mas, open, defaults, launchctl, diskutil, pmset,
+  networksetup, security, codesign, xcrun, plutil, hdiutil, spctl, xattr, softwareupdate,
+  tccutil, scutil, mdutil, mdfind, mdls, osascript, shortcuts, dscl, log, system_profiler,
+  ditto, textutil, sips, screencapture, say, afplay, qlmanage, caffeinate, pbcopy, pbpaste,
+  duti, profiles, sw_vers, nettop, fs_usage
 - **Other:** code (VS Code), claude (Claude Code), ffmpeg, pngquant, jpegtran, man, help, and
   `autocomplete` itself
 
