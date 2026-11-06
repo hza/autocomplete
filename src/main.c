@@ -557,7 +557,7 @@ static void print_man_name(const char *name) {
     printf("%s\n", name);
 }
 
-/* `_man_names`: commands for `bash --all-man`, see print_bash. */
+/* `_man_names`: commands for `bash --scan-man`, see print_bash. */
 static int man_names(void) {
     char line[4096];
     while (fgets(line, sizeof line, stdin)) {
@@ -571,7 +571,7 @@ static int man_names(void) {
     return 0;
 }
 
-/* `bash --all-man`: also every $PATH command with a man page, except ones that
+/* `bash --scan-man`: also every $PATH command with a man page, except ones that
  * already have a completion (bash-completion, brew, ...): their spec is
  * generated from the man page on the first TAB (load_man_spec). The list is
  * made at shell start by `_man_names`, which reads `complete -p`. */
@@ -591,8 +591,8 @@ static void print_bash(const char *self, int man) {
     fputs(" $_ac_man\nunset _ac_man\n", stdout);
 }
 
-/* `zsh [--all-man]`: compsys function + compdef for every spec (and with
- * --all-man, every man-page command without a zsh completion yet). The line up
+/* `zsh [--scan-man]`: compsys function + compdef for every spec (and with
+ * --scan-man, every man-page command without a zsh completion yet). The line up
  * to the cursor is rebuilt from $words (current command only, like bash's
  * COMP_LINE) plus an open quote and $PREFIX. Records: see flush_zsh. */
 static void print_zsh(const char *self, int man) {
@@ -833,9 +833,9 @@ int main(int argc, char **argv) {
     init_dirs();
     if (argc >= 2 && argc <= 3 && !strcmp(argv[1], "bash")) {
         char abs[PATH_MAX];
-        int man = argc == 3 && !strcmp(argv[2], "--all-man");
+        int man = argc == 3 && !strcmp(argv[2], "--scan-man");
         if (argc == 3 && !man) {
-            fprintf(stderr, "bash: unknown option %s (--all-man)\n", argv[2]);
+            fprintf(stderr, "bash: unknown option %s (--scan-man)\n", argv[2]);
             return 2;
         }
         /* bare name -> found via PATH at completion time; otherwise pin it */
@@ -844,9 +844,9 @@ int main(int argc, char **argv) {
     }
     if (argc >= 2 && argc <= 3 && !strcmp(argv[1], "zsh")) {
         char abs[PATH_MAX];
-        int man = argc == 3 && !strcmp(argv[2], "--all-man");
+        int man = argc == 3 && !strcmp(argv[2], "--scan-man");
         if (argc == 3 && !man) {
-            fprintf(stderr, "zsh: unknown option %s (--all-man)\n", argv[2]);
+            fprintf(stderr, "zsh: unknown option %s (--scan-man)\n", argv[2]);
             return 2;
         }
         print_zsh(strchr(argv[0], '/') && realpath(argv[0], abs) ? abs : argv[0], man);
@@ -871,10 +871,10 @@ int main(int argc, char **argv) {
     if (argc == 3 && !strcmp(argv[1], "edit")) return edit_cmd(argv[2]);
     if (argc >= 2 && !strcmp(argv[1], "rm")) return rm_cmd(argc - 2, argv + 2);
     if (argc >= 2 && !strcmp(argv[1], "diff")) return diff_cmd(argc - 2, argv + 2);
-    /* `manage` = `list --user` */
-    if (argc >= 2 && (!strcmp(argv[1], "list") || !strcmp(argv[1], "manage"))) {
+    /* `specs` = `list --user` */
+    if (argc >= 2 && (!strcmp(argv[1], "list") || !strcmp(argv[1], "specs"))) {
         int i;
-        if (!strcmp(argv[1], "manage")) g_list_user = 1;
+        if (!strcmp(argv[1], "specs")) g_list_user = 1;
         for (i = 2; i < argc; i++) {
             if (!strcmp(argv[i], "--paths")) g_list_paths = 1;
             else if (!strcmp(argv[i], "--user")) g_list_user = 1;
@@ -889,12 +889,12 @@ int main(int argc, char **argv) {
         return 0;
     }
     fprintf(stderr,
-            "usage: autocomplete bash [--all-man]      print bash init script\n"
-            "       autocomplete zsh [--all-man]       print zsh init script\n"
+            "usage: autocomplete bash [--scan-man]     print bash init script\n"
+            "       autocomplete zsh [--scan-man]      print zsh init script\n"
             "       autocomplete list [--user] [--paths|--tsv]  list specs with descriptions (--user: only\n"
             "                                  ~/.config/autocomplete; --paths: with the spec file;\n"
             "                                  --tsv: NAME<TAB>DESCRIPTION lines for scripts)\n"
-            "       autocomplete manage [--paths|--tsv]  same as list --user\n"
+            "       autocomplete specs [--paths|--tsv]  same as list --user\n"
             "       autocomplete check FILE        validate a spec, print it as JSON\n"
             "       autocomplete add [--force] [--from cobra|man|help] CMD...  write\n"
             "                                  ~/.config/autocomplete/CMD.yaml from the first source that works\n"

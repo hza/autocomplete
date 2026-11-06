@@ -78,7 +78,7 @@ The same binary and specs work in zsh. Add this line to `~/.zshrc` (the installe
 for you when `~/.zshrc` exists or zsh is your login shell):
 
 ```sh
-eval "$(autocomplete zsh)"           # or: eval "$(autocomplete zsh --all-man)"
+eval "$(autocomplete zsh)"           # or: eval "$(autocomplete zsh --scan-man)"
 ```
 
 It runs `compinit` if your `~/.zshrc` hasn't already, then registers one completion function

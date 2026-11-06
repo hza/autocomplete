@@ -4,14 +4,14 @@ commands:
   bash:
     description: 'Print the bash init script: use with eval "$(autocomplete bash)"'
     flags:
-      --all-man: {description: "Also complete every command with a man page, from the man page"}
+      --scan-man: {description: "Also complete every command with a man page, from the man page"}
   list:
     description: "List commands that have a spec, with descriptions"
     flags:
       --paths: {description: "Also show the spec file each command uses"}
       --tsv: {description: "NAME<TAB>DESCRIPTION lines, for scripts"}
       --user: {description: "Only specs in ~/.config/autocomplete (generated, aliases, your own)"}
-  manage:
+  specs:
     description: "Your specs in ~/.config/autocomplete (same as list --user)"
     flags:
       --paths: {description: "Also show the spec file each command uses"}
@@ -34,10 +34,10 @@ commands:
     description: "Delete your spec or alias in ~/.config/autocomplete (the shipped one takes over)"
     flags:
       -f: {description: "Don't ask y/n before each file"}
-    args: {exec: "autocomplete manage --tsv"}
+    args: {exec: "autocomplete specs --tsv"}
   diff:
     description: "diff -u your copies against the shipped specs (default: all that differ)"
-    args: {exec: "autocomplete manage | awk '/\\[override/ && !/unchanged/ {print $1}'"}
+    args: {exec: "autocomplete specs | awk '/\\[override/ && !/unchanged/ {print $1}'"}
   emoji:
     description: "List snippet mark names; NAME -> emoji, emoji -> NAME"
     args: {exec: "autocomplete emoji | awk '{print $2 \"\\t\" $1}'"}
@@ -56,7 +56,7 @@ snippets:
     command: "autocomplete list"
     description: "commands with a spec"
   - key: u
-    command: "autocomplete manage"
+    command: "autocomplete specs"
     description: "your own / generated specs"
   - key: e
     mark: pin
