@@ -17,6 +17,8 @@ extern const char *g_kind;  /* source, e.g. "target"; tagged when kinds mix */
 extern int g_show;          /* SHOW_* */
 extern int g_noesc;         /* display-only: no shell escaping */
 extern int g_verbatim;      /* no filter, escaping or trimming (display-only lists) */
+extern const char *g_zword;  /* zsh: whole cursor word as typed */
+extern int g_zsh;           /* AUTOCOMPLETE_SHELL=zsh output */
 extern int g_nofilter;      /* exec `filter: false`: skip the g_cur prefix check */
 extern const char *g_group, *g_gdesc; /* "groups" key and its description */
 

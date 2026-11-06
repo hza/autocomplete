@@ -12,6 +12,14 @@ runs `autocomplete _complete` with the line and cursor position in `COMP_LINE` a
 then prints the matching suggestions, already escaped for the shell and trimmed the way
 bash expects.
 
+In zsh, `autocomplete zsh` defines one function, `_autocomplete`, and registers it with
+`compdef`. On TAB it rebuilds the line up to the cursor from `$words` and `$PREFIX`, then runs
+`autocomplete _complete` with `AUTOCOMPLETE_SHELL=zsh`. The engine walks the same spec,
+but skips the readline workarounds described below: no folding, no padding for bash's
+list, and no trimming at wordbreak characters, because zsh replaces the whole word. It prints
+groups of `text<TAB>display` lines that the function passes to `compadd`. Mixed kinds (make
+targets and variables) become zsh group headers instead of `[kind]` tags.
+
 bash 3.2 lacks `compopt` and `mapfile`, so nothing here relies on them. Commands are
 registered with `complete -o nospace`, and the binary adds the trailing space itself to
 finished words. `-o bashdefault` lets bash's own `$VAR` completion handle words starting with `$` (the binary prints nothing for them), so unexported shell variables are listed too. Inside braces the engine completes the name itself (`${COL<TAB>` → `${COLUMNS`, without the `}` bash would add). The init line passes the shell's variable names (`compgen -v`, unexported ones included) to the binary on each TAB. TAB on a complete name lists `}` and the operators. Once an operator follows the name inside braces (`${str%`, `${str:`, `${s//`, `${#`, `${!`), the engine lists the matching bash 3.2 parameter-expansion forms with an example and a short description. The list is display-only: TAB never changes the line, and the values are not known (unexported variables never reach the binary). The same applies to `@` directly after non-space text (`user@<TAB>`): bash's own hostname completion lists hosts. A bare `@` at the start of a word is not handed over; it stays with the engine (spec snippets, `curl @<TAB>`).

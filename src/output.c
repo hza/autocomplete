@@ -26,6 +26,7 @@ typedef struct {
     int show;         /* flag "show": SHOW_DEFAULT, SHOW_ALWAYS (never folded), SHOW_COLLAPSED (only in 📌) */
     const char *group; /* key in "groups" ("Up"): collapsed together */
     const char *gdesc; /* that group's description */
+    char *dname;      /* zsh: listed name if not the text (snippets) */
 } cand;
 static cand g_cands[MAXCANDS];
 static int g_ncands;
@@ -36,7 +37,10 @@ int g_show;         /* "show" given to candidates emitted now */
 int g_noesc;        /* display-only candidates: no shell escaping */
 int g_verbatim;     /* snippets: no filter, escaping or trimming */
 int g_nofilter;     /* exec `filter: false`: the command already matched g_cur */
+const char *g_zword; /* zsh: the whole cursor word as typed */
+int g_zsh;          /* AUTOCOMPLETE_SHELL=zsh: grouped records for compadd, see flush_zsh */
 const char *g_group, *g_gdesc; /* group (and its description) given to candidates emitted now */
+const char *g_dname; /* zsh: listed name of the candidate emitted now */
 
 /* Escape for bash and queue, trimmed to bash's current word. Duplicates
  * (union values can overlap) are dropped, keeping the first description. */
@@ -74,6 +78,15 @@ void emit_desc(const char *cand, int space, const char *desc) {
     /* bash splits words at COMP_WORDBREAKS; the reply must replace only the
      * part after the last break char of the raw word. */
     p = esc;
+    if (g_zsh) { /* zsh replaces the whole word: put back what bash would keep ("--x=") */
+        const char *w = g_zword ? g_zword : g_raw, *last = strrchr(w, '=');
+        size_t k = last ? (size_t)(last - w) + 1 : 0;
+        if (k && strncmp(esc, w, k) && k + n < sizeof esc) {
+            memmove(esc + k, esc, n + 1);
+            memcpy(esc, w, k);
+        }
+        goto queue;
+    }
     {
         const char *r = g_raw, *last = NULL;
         for (; *r; r++)
@@ -99,6 +112,7 @@ queue:
         g_cands[g_ncands].show = g_show;
         g_cands[g_ncands].group = g_group;
         g_cands[g_ncands].gdesc = g_gdesc;
+        g_cands[g_ncands].dname = g_dname ? strdup(g_dname) : NULL;
         g_cands[g_ncands++].desc = desc ? strdup(desc) : NULL;
     }
 }
@@ -409,6 +423,26 @@ static const char *icon(const ynode *e) {
     return i ? i : FIRE;
 }
 
+/* Text that replaces "@key" for snippet command cmd (NULL: not
+ * substitutable, e.g. a pipeline); nl = strlen(g_snippets_name). */
+static const char *snippet_subst(const char *cmd, size_t nl, char *buf, size_t sz) {
+    if (!nl) { /* flag value (exec snippets): quoted whole */
+        char *o = buf;
+        const char *c;
+        *o++ = '\'';
+        for (c = cmd; *c && o < buf + sz - 6; c++)
+            if (*c == '\'') { memcpy(o, "'\\''", 4); o += 4; } else *o++ = *c;
+        *o++ = '\''; *o = 0;
+        return buf;
+    }
+    if (!strncmp(cmd, g_snippets_name, nl) && cmd[nl] == ' ') return cmd + nl + 1;
+    { /* symlinked spec (fly -> flyctl): snippets use the real name */
+        size_t al = (size_t)snprintf(buf, sz, "%s%s", g_spec_real, g_snippets_name + strcspn(g_snippets_name, " "));
+        if (al < sz && !strncmp(cmd, buf, al) && cmd[al] == ' ') return cmd + al + 1;
+    }
+    return NULL;
+}
+
 static void add_snippets(void) {
     const ynode *e;
     int want, exact = 0, same = 1, nmatch = 0;
@@ -437,33 +471,28 @@ static void add_snippets(void) {
     for (e = g_snippets->child; e; e = e->next) {
         const ynode *cmd = yaml_get(e, "command"), *k = yaml_get(e, "key");
         const char *d = spec_desc(e);
-        const char *ic;
+        const char *ic, *sub;
+        char q[4096];
         if (!cmd || cmd->type != Y_STR || !snippet_key(k)) continue;
         if (want && !exact && strncmp(k->str, g_cur + 1, strlen(g_cur + 1))) continue;
         if (want && exact) {
             if (strcmp(k->str, key)) continue;
-            if (!nl) { /* flag value (exec snippets): quoted whole */
-                char q[4096], *o = q;
-                const char *c;
-                *o++ = '\'';
-                for (c = cmd->str; *c && o < q + sizeof q - 6; c++)
-                    if (*c == '\'') { memcpy(o, "'\\''", 4); o += 4; } else *o++ = *c;
-                *o++ = '\''; *o = 0;
-                emit_desc(q, 1, NULL);
-            } else if (!strncmp(cmd->str, g_snippets_name, nl) && cmd->str[nl] == ' ') {
-                emit_desc(cmd->str + nl + 1, 1, NULL);
-            } else { /* symlinked spec (fly -> flyctl): snippets use the real name */
-                char alt[1024];
-                size_t al = (size_t)snprintf(alt, sizeof alt, "%s%s", g_spec_real,
-                                             g_snippets_name + strcspn(g_snippets_name, " "));
-                if (al < sizeof alt && !strncmp(cmd->str, alt, al) && cmd->str[al] == ' ')
-                    emit_desc(cmd->str + al + 1, 1, NULL);
-            }
+            if ((sub = snippet_subst(cmd->str, nl, q, sizeof q))) emit_desc(sub, 1, NULL);
             break; /* not substitutable: list nothing */
         }
         ic = icon(e);
         if (same && !strcmp(ic, PUSHPIN)) ic = !strcmp(k->str, last) ? FIRE : ic;
         else if (same && !strcmp(k->str, first)) ic = PUSHPIN;
+        if (g_zsh) { /* menu entry "@key -- command": choosing it inserts the command
+                      * (a menu TAB moves to the next entry, never expands one) */
+            snprintf(name, sizeof name, "@%s", k->str);
+            snprintf(desc, sizeof desc, "%s %s%s%s", ic, cmd->str, d ? "   📚 " : "", d ? d : "");
+            sub = snippet_subst(cmd->str, nl, q, sizeof q);
+            g_dname = name;
+            emit_desc(sub ? sub : name, !!sub, desc);
+            g_dname = NULL;
+            continue;
+        }
         if (!strcmp(ic, PUSHPIN)) /* ASCII space: sorts first in UTF-8 locales */
             snprintf(name, sizeof name, "%s @%s", ic, k->str);
         else if (isdigit((unsigned char)*ic) && !utf8_locale()) /* keycap drawn 2 cols: no U+00A0 pad */
@@ -476,8 +505,66 @@ static void add_snippets(void) {
     g_verbatim = 0;
 }
 
+/* zsh: no readline workarounds (zsh menus scroll, show descriptions and
+ * group headers, and insert what we give). Output: one header line
+ * "\t<space 0|1>\t<kind or empty>" per run of candidates with the same
+ * kind and space (kind given only when kinds mix: a group header), then
+ * "text\tdisplay" lines; display is "text  -- desc" padded, or empty.
+ * Display-only exec entries (U+00A0) are dropped: zsh would insert them. */
+static void flush_zsh(void) {
+    int i, j, any = 0, width = 0, mixed = 0, cols = term_width(), done[MAXCANDS] = {0};
+    for (i = j = 0; i < g_ncands; i++)
+        if (!strstr(g_cands[i].text, "\xc2\xa0")) g_cands[j++] = g_cands[i];
+    g_ncands = j;
+    for (i = 0; i < g_ncands; i++) {
+        const char *k = g_cands[i].kind;
+        if (g_cands[i].desc) any = 1;
+        if (dwidth(g_cands[i].dname ? g_cands[i].dname : g_cands[i].text) > width)
+            width = dwidth(g_cands[i].dname ? g_cands[i].dname : g_cands[i].text);
+        if (i && (k ? !g_cands[0].kind || strcmp(k, g_cands[0].kind) : !!g_cands[0].kind)) mixed = 1;
+    }
+    size_t skip = 0; /* "--x=": listed without it, like bash */
+    if (g_zword && strrchr(g_zword, '=')) {
+        skip = (size_t)(strrchr(g_zword, '=') - g_zword) + 1;
+        for (i = 0; i < g_ncands; i++)
+            if (strncmp(g_cands[i].text, g_zword, skip)) skip = 0;
+    }
+    if (g_ncands < 2) any = 0;
+    for (i = 0; i < g_ncands; i++) {
+        const cand *h = &g_cands[i];
+        if (done[i]) continue;
+        printf("\t%d\t%s\n", h->space, mixed && h->kind ? h->kind : "");
+        for (j = i; j < g_ncands; j++) {
+            const cand *c = &g_cands[j];
+            char buf[4096] = "";
+            int n;
+            if (done[j] || c->space != h->space || (c->kind != h->kind && (!c->kind || !h->kind || strcmp(c->kind, h->kind))))
+                continue;
+            done[j] = 1;
+            if (any || skip || c->dname) {
+                const char *tx = c->dname ? c->dname : c->text + skip;
+                n = any ? snprintf(buf, sizeof buf, "%-*s  -- %s", width - (int)skip + (int)strlen(tx) - dwidth(tx), tx,
+                                   c->desc ? c->desc : "")
+                        : snprintf(buf, sizeof buf, "%s", tx);
+                if (n >= (int)sizeof buf) n = (int)sizeof buf - 1;
+                while (n > 0 && buf[n - 1] == ' ') buf[--n] = 0;
+                while (dwidth(buf) > cols - 2) {
+                    while (n > 0 && (buf[--n] & 0xC0) == 0x80) {}
+                    buf[n] = 0;
+                }
+            }
+            printf("%s\t%s\n", c->text, buf);
+        }
+    }
+}
+
 void flush(void) {
     int i, any = 0, width = 0, kwidth = 0, mixed = 0, cols, line;
+    if (g_zsh) {
+        add_snippets();
+        flush_zsh();
+        return;
+    }
     collapse_vars();
     add_snippets();
     collapse_flags();

@@ -4,6 +4,7 @@
 |---|---|
 | Nothing happens on TAB | `complete -p docker` should print `complete -o nospace -o bashdefault -C '/path/to/autocomplete _complete' docker`. If not, the `eval` line didn't run; open a new terminal or check your profile. |
 | Works in some terminals (e.g. inside `mc`) but not in new Terminal.app windows or tabs | Terminal.app starts login shells, which read `~/.bash_profile` and not `~/.bashrc` (where `make install` puts the `eval` line). Add `[ -f ~/.bashrc ] && . ~/.bashrc` to `~/.bash_profile` instead of copying the `eval` line there. |
+| zsh: nothing happens on TAB | `print $_comps[docker]` should print `_autocomplete`. If not, the `eval "$(autocomplete zsh)"` line didn't run, or a later `compdef`/plugin manager overrode it; put the line at the end of `~/.zshrc`. |
 | A new spec isn't picked up | Re-run `eval "$(autocomplete bash)"`; bash only registers commands at startup. |
 | A spec seems to be ignored | `autocomplete check path/to/spec.yaml` shows errors with line numbers. `AUTOCOMPLETE_DEBUG=1` prints errors while completing. |
 | A bundled spec behaves like an old version after upgrading | Old installs put specs directly in `share/autocomplete`; those files take priority over the topic folders. Delete the top-level files (`find /usr/local/share/autocomplete -maxdepth 1 -type f -delete`) and run `make install` again. |

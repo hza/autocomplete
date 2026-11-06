@@ -1,24 +1,26 @@
 #!/bin/sh
 # Installs a prebuilt autocomplete release (macOS arm64/x86_64, Linux x86_64/arm64).
-#   curl -fsSL https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
-#   wget -qO-  https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
-# Env: PREFIX (default ~/.local), PROFILE (default ~/.bashrc), VERSION (tag, default latest).
+#   curl -fsSL https://github.com/hza/autocomplete/releases/latest/download/install.sh | sh
+#   wget -qO-  https://github.com/hza/autocomplete/releases/latest/download/install.sh | sh
+# Env: PREFIX (default ~/.local), PROFILE (default ~/.bashrc), ZPROFILE (default ~/.zshrc,
+# set up when it exists or the login shell is zsh), VERSION (tag, default latest).
 # Uninstall: ... | sh -s -- --uninstall
 set -eu
 
-REPO=hza/bash-autocomplete
+REPO=hza/autocomplete
 PREFIX=${PREFIX:-$HOME/.local}
 PROFILE=${PROFILE:-$HOME/.bashrc}
 VERSION=${VERSION:-latest}
+ZPROFILE=${ZPROFILE:-$HOME/.zshrc}
 INIT='eval "$(autocomplete bash)"'
 
 die() { echo "autocomplete: $*" >&2; exit 1; }
 
-# Profile line: bare name when PREFIX/bin is on PATH, absolute path otherwise
+# Profile line for shell $1 (default bash): bare name when PREFIX/bin is on PATH, absolute path otherwise
 init_line() {
     case ":$PATH:" in
-        *":$PREFIX/bin:"*) echo "$INIT" ;;
-        *) echo "eval \"\$($PREFIX/bin/autocomplete bash)\"" ;;
+        *":$PREFIX/bin:"*) echo "eval \"\$(autocomplete ${1:-bash})\"" ;;
+        *) echo "eval \"\$($PREFIX/bin/autocomplete ${1:-bash})\"" ;;
     esac
 }
 
@@ -28,6 +30,11 @@ if [ "${1:-}" = --uninstall ]; then
         line=$(init_line)
         grep -vxF -e "$INIT" -e "$line" "$PROFILE" > "$PROFILE.tmp" || true
         cat "$PROFILE.tmp" > "$PROFILE" && rm -f "$PROFILE.tmp"
+    fi
+    if [ -f "$ZPROFILE" ]; then
+        line=$(init_line zsh)
+        grep -vxF -e 'eval "$(autocomplete zsh)"' -e "$line" "$ZPROFILE" > "$ZPROFILE.tmp" || true
+        cat "$ZPROFILE.tmp" > "$ZPROFILE" && rm -f "$ZPROFILE.tmp"
     fi
     echo "autocomplete removed from $PREFIX (your specs in ~/.config/autocomplete are kept)"
     exit 0
@@ -88,6 +95,17 @@ else
     if [ -s "$PROFILE" ] && [ -n "$(tail -c 1 "$PROFILE")" ]; then echo >> "$PROFILE"; fi
     echo "$line" >> "$PROFILE"
     echo "$PROFILE: added $line"
+fi
+
+if [ -e "$ZPROFILE" ] || case "${SHELL:-}" in *zsh) true ;; *) false ;; esac; then
+    zline=$(init_line zsh)
+    if grep -qF 'autocomplete zsh' "$ZPROFILE" 2>/dev/null; then
+        echo "$ZPROFILE: already set up"
+    else
+        if [ -s "$ZPROFILE" ] && [ -n "$(tail -c 1 "$ZPROFILE")" ]; then echo >> "$ZPROFILE"; fi
+        echo "$zline" >> "$ZPROFILE"
+        echo "$ZPROFILE: added $zline"
+    fi
 fi
 
 # macOS Terminal starts login shells, which read the first of these and never ~/.bashrc

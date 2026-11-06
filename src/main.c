@@ -54,6 +54,9 @@ static void print_complete(const char *name) {
     if (!g_ncomplete++) print_complete_cmd();
     printf(" %s", name);
 }
+static void print_compdef(const char *name) {
+    printf(g_ncomplete++ ? " %s" : "compdef _autocomplete %s", name);
+}
 static char *g_list[2048];
 static int g_nlist;
 static void add_name(const char *name) { if (g_nlist < 2048) g_list[g_nlist++] = (char *)name; }
@@ -588,6 +591,48 @@ static void print_bash(const char *self, int man) {
     fputs(" $_ac_man\nunset _ac_man\n", stdout);
 }
 
+/* `zsh [--man]`: compsys function + compdef for every spec (and with
+ * --man, every man-page command without a zsh completion yet). The line up
+ * to the cursor is rebuilt from $words (current command only, like bash's
+ * COMP_LINE) plus an open quote and $PREFIX. Records: see flush_zsh. */
+static void print_zsh(const char *self, int man) {
+    char q[PATH_MAX * 4 + 3], *o = q;
+    const char *p;
+    *o++ = '\'';
+    for (p = self; *p && o < q + sizeof q - 6; p++)
+        if (*p == '\'') { memcpy(o, "'\\''", 4); o += 4; } else *o++ = *p;
+    *o++ = '\''; *o = 0;
+    printf("(( ${+functions[compdef]} )) || { autoload -Uz compinit && compinit; }\n"
+           "_autocomplete() {\n"
+           "  local l sp=1 kind w=$PREFIX; local -a t d o q=(-Q) lines\n"
+           "  [[ -n $compstate[quote] ]] && { w=${(q)PREFIX}; q=(); }\n"
+           "  lines=(\"${(@f)$(COMP_LINE=\"${(j: :)words[1,CURRENT-1]} $w\" AUTOCOMPLETE_SHELL=zsh"
+           " AUTOCOMPLETE_RAW=${compstate[quote]:+1} %s _complete 2>/dev/null)}\" $'\\t')\n"
+           "  for l in \"${lines[@]}\"; do\n"
+           "    if [[ $l == $'\\t'* ]]; then\n"
+           "      if (( $#t )); then\n"
+           "        o=($q -U); (( sp )) || o+=(-S '')\n"
+           "        [[ -n $kind ]] && o+=(-J \"$kind\" -X \"%%B$kind%%b\")\n"
+           "        [[ -n ${(j::)d} ]] && { o+=(-d d); [[ ${(j::)d} == *' -- '* ]] && o+=(-l); }\n"
+           "        compadd \"${o[@]}\" -a t\n"
+           "      fi\n"
+           "      t=() d=(); l=${l#$'\\t'}; sp=${l%%%%$'\\t'*}; kind=${l#*$'\\t'}; continue\n"
+           "    fi\n"
+           "    [[ -n $l ]] && { t+=(\"${l%%%%$'\\t'*}\"); d+=(\"${l#*$'\\t'}\"); }\n"
+           "  done\n"
+           "  # several snippets: list only, like bash; `@key<TAB>` then expands that one\n"
+           "  [[ $PREFIX == @* ]] && (( compstate[nmatches] > 1 )) && { compstate[insert]=''; compstate[list]='list force'; }\n"
+           "  (( compstate[nmatches] )) && return 0\n"
+           "  [[ $PREFIX == ?*@* ]] && compset -P '*@' && _hosts\n"
+           "}\n", q);
+    g_self = self;
+    each_spec(print_compdef);
+    if (g_ncomplete) putchar('\n');
+    if (!man) return;
+    printf("_ac_man=(${(f)\"$(print -rl -- ${(k)_comps} | %s _man_names)\"})\n"
+           "(( $#_ac_man )) && compdef _autocomplete $_ac_man\nunset _ac_man\n", q);
+}
+
 /* `${NAME<op>` cheat-sheet (bash 3.2 forms only). `op`: what is typed after
    the name (`pre`: right after `${`; `0` stands for any digit), `ex`: the
    example after the name (`pre`: the whole expansion), `res`: its result when
@@ -702,6 +747,25 @@ static int complete_env(void) {
         buf[i] = 0;
     }
     if (!wb) wb = "\"'@><=;|&(:";
+    if (getenv("AUTOCOMPLETE_SHELL") && !strcmp(getenv("AUTOCOMPLETE_SHELL"), "zsh")) {
+        /* zsh replaces the whole word and handles `$`/`${`/`~` words itself;
+           `user@host` -> nothing, the init function falls back to _hosts */
+        g_zsh = 1;
+        g_noesc = getenv("AUTOCOMPLETE_RAW") && *getenv("AUTOCOMPLETE_RAW"); /* in quotes: zsh quotes */
+        for (i = strlen(buf); i > 0 && !isspace((unsigned char)buf[i - 1]) && !strchr(wb, buf[i - 1]); i--) {}
+        if (i >= 2 && buf[i - 1] == '@' && !isspace((unsigned char)buf[i - 2]) && buf[i - 2] != '=') { free(buf); return 0; }
+        { /* last unescaped space starts the word */
+            char *z = buf, *q;
+            for (q = buf; *q; q++)
+                if (*q == '\\' && q[1]) q++;
+                else if (isspace((unsigned char)*q)) z = q + 1;
+            g_zword = z;
+        }
+        rc = do_complete(buf, ""); /* whole words, see emit_desc */
+        flush();
+        free(buf);
+        return rc;
+    }
     /* `$VAR` word: print nothing, bash's own variable completion takes over
        (-o bashdefault) and sees unexported shell variables too */
     for (i = strlen(buf); i > 0 && !isspace((unsigned char)buf[i - 1]) && !strchr(wb, buf[i - 1]); i--) {}
@@ -776,6 +840,16 @@ int main(int argc, char **argv) {
         print_bash(strchr(argv[0], '/') && realpath(argv[0], abs) ? abs : argv[0], man);
         return 0;
     }
+    if (argc >= 2 && argc <= 3 && !strcmp(argv[1], "zsh")) {
+        char abs[PATH_MAX];
+        int man = argc == 3 && !strcmp(argv[2], "--man");
+        if (argc == 3 && !man) {
+            fprintf(stderr, "zsh: unknown option %s (--man)\n", argv[2]);
+            return 2;
+        }
+        print_zsh(strchr(argv[0], '/') && realpath(argv[0], abs) ? abs : argv[0], man);
+        return 0;
+    }
     if (argc >= 2 && !strcmp(argv[1], "_complete")) return complete_env();
     if (argc == 2 && !strcmp(argv[1], "_man_names")) return man_names();
     if (argc >= 3 && !strcmp(argv[1], "check")) {
@@ -813,7 +887,8 @@ int main(int argc, char **argv) {
         return 0;
     }
     fprintf(stderr,
-            "usage: autocomplete bash              print bash init script\n"
+            "usage: autocomplete bash [--man]      print bash init script\n"
+            "       autocomplete zsh [--man]       print zsh init script\n"
             "       autocomplete list [--user] [--paths|--tsv]  list specs with descriptions (--user: only\n"
             "                                  ~/.config/autocomplete; --paths: with the spec file;\n"
             "                                  --tsv: NAME<TAB>DESCRIPTION lines for scripts)\n"
@@ -834,6 +909,10 @@ int main(int argc, char **argv) {
             "Manual install: add this line to ~/.bash_profile (or ~/.bashrc):\n"
             "\n"
             "    eval \"$(autocomplete bash)\"\n"
+            "\n"
+            "zsh: add this line to ~/.zshrc:\n"
+            "\n"
+            "    eval \"$(autocomplete zsh)\"\n"
             "\n");
     return 2;
 }

@@ -1,7 +1,7 @@
-# autocomplete: tab completion and command snippets for macOS bash 3.2
+# autocomplete: tab completion and command snippets for bash and zsh
 
 **Fast tab completion, plus ready-made command snippets on `@<TAB>`, for the bash that ships
-with macOS (`/bin/bash` 3.2). One small C binary, no shell scripts, no dependencies.**
+with macOS (`/bin/bash` 3.2), any newer bash, and zsh. One small C binary, no shell scripts, no dependencies.**
 
 It does two things:
 
@@ -28,22 +28,24 @@ $ tar @x<TAB>
 $ tar -xzf backup.tar.gz
 ```
 
-You don't need Homebrew bash, the `bash-completion` package or zsh. Pressing TAB runs no
-shell code, and new terminals open as fast as before.
+You don't need Homebrew bash or the `bash-completion` package. Pressing TAB runs no
+shell code, and new terminals open as fast as before. zsh works too, with the same specs
+([zsh](docs/installation.md#zsh)).
 
 ## Installation
 
-macOS (Apple silicon, Intel) and Linux (x86_64, arm64). Works with bash 3.2 or newer. No
-sudo: installs to `~/.local` and adds `eval "$(autocomplete bash)"` to `~/.bashrc`.
+macOS (Apple silicon, Intel) and Linux (x86_64, arm64). Works with bash 3.2 or newer, and
+zsh. No sudo: installs to `~/.local` and adds `eval "$(autocomplete bash)"` to `~/.bashrc`
+(and `eval "$(autocomplete zsh)"` to `~/.zshrc` when you use zsh).
 
 ```sh
-curl -fsSL https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
+curl -fsSL https://github.com/hza/autocomplete/releases/latest/download/install.sh | sh
 ```
 
 or with `wget`:
 
 ```sh
-wget -qO- https://github.com/hza/bash-autocomplete/releases/latest/download/install.sh | sh
+wget -qO- https://github.com/hza/autocomplete/releases/latest/download/install.sh | sh
 ```
 
 Open a new terminal and press TAB after `git`, `docker` or `make`. For manual download,
@@ -96,7 +98,7 @@ a separate command, not at the prompt you're already typing on.
 - **Files and text:** find, grep, rg, sed, awk, diff, patch, jq, bat, fzf, tar, zip, unzip,
   unrar, gzip, xz, bzip2, compress (and their decompressors)
 - **Processes:** ps, kill, pkill, killall, lsof, tmux
-- **macOS:** brew, port (MacPorts), mas, open, defaults, launchctl, diskutil, pmset,
+- **macOS:** port (MacPorts), brew, mas, open, defaults, launchctl, diskutil, pmset,
   networksetup, security, codesign, xcrun, plutil, hdiutil, spctl, xattr, softwareupdate,
   tccutil, scutil, mdutil, mdfind, mdls, osascript, shortcuts, dscl, log, system_profiler,
   ditto, textutil, sips, screencapture, say, afplay, qlmanage, caffeinate, pbcopy, pbpaste,
@@ -143,6 +145,7 @@ a separate command, not at the prompt you're already typing on.
 | Command | Description |
 |---|---|
 | `autocomplete bash [--man]` | Print the init script (use with `eval`). `--man` also registers every command in `$PATH` that has a man page and no spec; its flags are read from the man page on first TAB and [cached](docs/cache.md#man-page-specs). |
+| `autocomplete zsh [--man]` | Same for zsh: defines one completion function and registers it with `compdef` (loads `compinit` if needed). |
 | `autocomplete list [--user] [--paths] [--tsv]` | List commands that have a spec, with descriptions. `--user`: only your specs in `~/.config/autocomplete`. `--paths`: show which spec file is used. `--tsv`: `NAME<TAB>DESCRIPTION` for scripts. Your specs are tagged `[override]`, `[added]` or `[alias -> CMD]`, plus `generated: …` and `update: NEW > OLD` when the shipped spec is newer. |
 | `autocomplete manage` | Same as `list --user`. |
 | `autocomplete add [--force] [--from cobra\|man\|help] CMD...` | Write `~/.config/autocomplete/CMD.yaml` from the first source that works: cobra, man page, `CMD --help`. |
