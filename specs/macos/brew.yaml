@@ -1,4 +1,4 @@
-version: '20261015'
+version: '20261109'
 description: The Missing Package Manager for macOS
 flags:
   --verbose: {aliases: [-v], description: "Be verbose", show: always}
@@ -35,7 +35,7 @@ commands:
       --zap: {description: "Remove all files associated with a cask"}
       --ignore-dependencies: {description: "Don't fail uninstall if there are dependents"}
     args:
-      exec: "brew list --formula 2>/dev/null"
+      exec: "{ case \" $COMP_LINE \" in *\" --cask \"*) brew list --cask;; *\" --formula \"*) brew list --formula;; *) brew list --formula; brew list --cask;; esac; } 2>/dev/null | awk 'BEGIN { n = split(ENVIRON[\"COMP_LINE\"], w, \" \"); for (i = 1; i <= n; i++) t[w[i]] = 1; if (ENVIRON[\"COMP_LINE\"] !~ / $/) delete t[w[n]] } !($0 in t)'"
   upgrade:
     description: Upgrade outdated formulae and casks
     flags:
