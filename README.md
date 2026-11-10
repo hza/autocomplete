@@ -1,5 +1,7 @@
 # autocomplete: tab completion and command snippets for bash and zsh
 
+![autocomplete listing command snippets on @<TAB>](docs/screenshot.png)
+
 **Fast tab completion, plus ready-made command snippets on `@<TAB>`, for the bash that ships
 with macOS (`/bin/bash` 3.2), any newer bash, and zsh. One small C binary, no shell scripts, no dependencies.**
 
